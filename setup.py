@@ -7,7 +7,7 @@ import os
 from setuptools import setup, find_packages
 
 PYVERSION = float('%s.%s' % (sys.version_info[0], sys.version_info[1]))
-PATH = os.path.abspath(os.path.dirname(__file__)),
+PATH = os.path.abspath(os.path.dirname(__file__))
 
 INSTALL_REQUIRES = [
     line
