@@ -41,6 +41,14 @@ class ModelMeta(type):
 
 
 class Model(frozendict):
+    """A Model is simply a read-only dict with a light dusting of magic.
+
+    The Model can be subclassed to add fields from ``nonobvious.fields``
+    (similar to Django models).
+
+    Model instances provide copy-on-write functionality via the `copy` method.
+
+    """
     __metaclass__ = ModelMeta
     ConstraintError = ConstraintError
     ValidationError = ValidationError
