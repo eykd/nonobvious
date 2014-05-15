@@ -34,7 +34,7 @@ SETUP = dict(
 
     package_data = {
         '': ['*.txt', '*.html'],
-        },
+    },
     zip_safe = False,
 
     version = "0.1",

@@ -36,3 +36,5 @@ local.py
 *.sublime-project
 *.sublime-workspace
 .coverage
+.tox
+dist
