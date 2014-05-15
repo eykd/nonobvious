@@ -62,3 +62,21 @@ class ModelTests(unittest.TestCase):
 
         ensure(MyModel).called_with().raises(MyModel.ValidationError)
         ensure(MyModel).called_with(foo='baz').equals({'foo': 'baz', 'bar': 2})
+
+    def test_it_should_produce_a_copy(self):
+        from nonobvious import models
+        from nonobvious import fields
+
+        class MyModel(models.Model):
+            foo = fields.String(required=True)
+            bar = fields.Integer(default=2)
+
+        model1 = MyModel(foo='baz')
+        model2 = model1.copy()
+        ensure(model2).is_not(model1)
+        ensure(model2).equals(model1)
+
+        model3 = model2.copy(bar=3)
+        ensure(model3).does_not_equal(model2)
+        ensure(model3['foo']).equals(model2['foo'])
+        ensure(model3['bar']).equals(3)

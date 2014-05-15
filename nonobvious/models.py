@@ -49,6 +49,15 @@ class Model(frozendict):
         for name, field in self.fields.iteritems():
             if name not in kwargs and field.default is not None:
                 defaults[name] = field.default
-        super(Model, self).__init__(defaults, *args, **kwargs)
-        validator = parse(self.validation_spec)
+        for arg in args:
+            defaults.update(arg)
+        super(Model, self).__init__(defaults, **kwargs)
+        validator = valideer.parse(self.validation_spec)
         validator.validate(self)
+
+    def copy(self, *args, **kwargs):
+        """Return a shallow copy, optionally with updated members as specified.
+
+        Updated members must pass validation.
+        """
+        return self.__class__(self, *args, **kwargs)
