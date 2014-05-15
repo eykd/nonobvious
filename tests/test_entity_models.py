@@ -72,6 +72,7 @@ class ModelTests(unittest.TestCase):
             bar = fields.Integer(default=2)
 
         ensure(MyModel).called_with().raises(MyModel.ValidationError)
+        ensure(MyModel).called_with(blah='!!!').raises(MyModel.ValidationError)
         ensure(MyModel).called_with(foo='baz').equals({'foo': 'baz', 'bar': 2})
 
     def test_it_should_produce_a_copy(self):
