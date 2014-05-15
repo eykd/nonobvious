@@ -8,26 +8,22 @@ from ensure import ensure
 
 class FieldTests(unittest.TestCase):
     def test_it_should_be_a_descriptor(self):
-        from nonobvious import models
         from nonobvious import fields
 
-        class MyModel(models.Model):
-            foo = fields.Field()
+        class MyModel(dict):
+            foo = fields.Field(key='foo')
 
         model = MyModel(foo="bar")
         ensure(model.foo).equals("bar")
-        ensure(model['foo']).equals("bar")
 
     def test_it_should_have_defaults(self):
-        from nonobvious import models
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyModel(dict):
             foo = fields.Field(default='bar')
 
         model = MyModel()
         ensure(model.foo).equals("bar")
-        ensure(model['foo']).equals("bar")
 
     def test_it_should_have_a_validation_spec(self):
         from nonobvious import fields

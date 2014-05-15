@@ -25,6 +25,17 @@ class ModelTests(unittest.TestCase):
         ensure(MyModel.fields).has_key('foo')
         ensure(MyModel.fields['foo']).equals(MyModel.foo)
 
+    def test_it_should_populate_defaults(self):
+        from nonobvious import models
+        from nonobvious import fields
+
+        class MyModel(models.Model):
+            foo = fields.Field(default='bar')
+
+        model = MyModel()
+        ensure(model.foo).equals("bar")
+        ensure(model['foo']).equals("bar")
+
     def test_it_should_be_immutable(self):
         from nonobvious import models
         from nonobvious import fields
