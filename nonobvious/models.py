@@ -2,7 +2,8 @@
 """entities.models
 """
 from concon import frozendict, ConstraintError
-from valideer import ValidationError, parse
+from valideer import ValidationError
+import valideer
 
 from . import fields
 
