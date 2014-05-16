@@ -55,23 +55,31 @@ class Date(Field):
     validator = 'date'
 
 
+def _has_tzinfo(d):
+    return d.tzinfo is not None and d.tzinfo.utcoffset(d) is not None
+
+
+def _validate_tz(kwargs):
+    naive_ok = kwargs.pop('naive_ok', False)
+    if not naive_ok:
+        validator = kwargs.get('validator')
+        if validator is not None:
+            validator = V.AllOf(validator, _has_tzinfo)
+        else:
+            validator = _has_tzinfo
+        kwargs['validator'] = validator
+    return kwargs
+
+
 class Time(Field):
     validator = 'time'
+
+    def __init__(self, **kwargs):
+        super(Time, self).__init__(**_validate_tz(kwargs))
 
 
 class DateTime(Field):
     validator = 'datetime'
 
-    def has_tzinfo(self, d):
-        return d.tzinfo is not None and d.tzinfo.utcoffset(d) is not None
-
     def __init__(self, **kwargs):
-        naive_ok = kwargs.pop('naive_ok', False)
-        if not naive_ok:
-            validator = kwargs.get('validator')
-            if validator is not None:
-                validator = V.AllOf(validator, self.has_tzinfo)
-            else:
-                validator = self.has_tzinfo
-            kwargs['validator'] = validator
-        super(DateTime, self).__init__(**kwargs)
+        super(DateTime, self).__init__(**_validate_tz(kwargs))

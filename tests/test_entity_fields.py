@@ -63,8 +63,52 @@ class DateFieldTests(unittest.TestCase):
 class TimeFieldTests(unittest.TestCase):
     def test_it_should_have_validation_spec(self):
         from nonobvious import fields
-        field = fields.Time(key='foo')
+        field = fields.Time(key='foo', naive_ok=True)
         ensure(field.validation_spec).equals(('foo', 'time'))
+
+    def test_it_should_not_accept_naive_times(self):
+        from nonobvious import fields
+
+        field = fields.Time(key='foo')
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': dt.datetime.now().time()}  # Naive time
+        ).raises(
+            V.ValidationError
+        )
+
+    def test_it_should_accept_timezone_aware_times(self):
+        from nonobvious import fields
+        from pytz import timezone
+
+        field = fields.Time(key='foo')
+        tz_now = timezone('UTC').localize(dt.datetime.now().time())
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': tz_now}
+        ).equals(
+            {'foo': tz_now}
+        )
+
+    def test_it_should_accept_timezone_aware_times_even_with_custom_validator(self):
+        from nonobvious import fields
+        from pytz import timezone
+        UTC = timezone('UTC')
+
+        field = fields.Time(key='foo', validator=lambda d: d > UTC.localize(dt.time(1, 1, 1)))
+        tz_now = UTC.localize(dt.datetime.now().time())
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': tz_now}
+        ).equals(
+            {'foo': tz_now}
+        )
 
 
 class DateTimeFieldTests(unittest.TestCase):
