@@ -50,6 +50,13 @@ class FieldTests(unittest.TestCase):
         ensure(validator.validate).called_with({'foo': 'boo'}).raises(V.ValidationError)
 
 
+class BooleanFieldTests(unittest.TestCase):
+    def test_it_should_have_validation_spec(self):
+        from nonobvious import fields
+        field = fields.Boolean(key='foo')
+        ensure(field.validation_spec).equals(('foo', 'boolean'))
+
+
 class StringFieldTests(unittest.TestCase):
     def test_it_should_have_validation_spec(self):
         from nonobvious import fields

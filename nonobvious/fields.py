@@ -52,6 +52,10 @@ class Field(object):
         return (key, self.validator)
 
 
+class Boolean(Field):
+    validator = 'boolean'
+
+
 class String(Field):
     validator = 'string'
 
