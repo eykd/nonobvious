@@ -59,7 +59,7 @@ def _has_tzinfo(d):
     return d.tzinfo is not None and d.tzinfo.utcoffset(d) is not None
 
 
-def _validate_tz(kwargs):
+def _add_tz_validator_to_kwargs(kwargs):
     naive_ok = kwargs.pop('naive_ok', False)
     if not naive_ok:
         validator = kwargs.get('validator')
@@ -75,11 +75,11 @@ class Time(Field):
     validator = 'time'
 
     def __init__(self, **kwargs):
-        super(Time, self).__init__(**_validate_tz(kwargs))
+        super(Time, self).__init__(**_add_tz_validator_to_kwargs(kwargs))
 
 
 class DateTime(Field):
     validator = 'datetime'
 
     def __init__(self, **kwargs):
-        super(DateTime, self).__init__(**_validate_tz(kwargs))
+        super(DateTime, self).__init__(**_add_tz_validator_to_kwargs(kwargs))
