@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 """test for entity fields
 """
+import datetime as dt
 import unittest
 
 from ensure import ensure
+
+import valideer as V
 
 
 class FieldTests(unittest.TestCase):
@@ -67,5 +70,49 @@ class TimeFieldTests(unittest.TestCase):
 class DateTimeFieldTests(unittest.TestCase):
     def test_it_should_have_validation_spec(self):
         from nonobvious import fields
-        field = fields.DateTime(key='foo')
+        field = fields.DateTime(key='foo', naive_ok=True)
         ensure(field.validation_spec).equals(('foo', 'datetime'))
+
+    def test_it_should_not_accept_naive_datetimes(self):
+        from nonobvious import fields
+
+        field = fields.DateTime(key='foo')
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': dt.datetime.now()}  # Naive datetime
+        ).raises(
+            V.ValidationError
+        )
+
+    def test_it_should_accept_timezone_aware_datetimes(self):
+        from nonobvious import fields
+        from pytz import timezone
+
+        field = fields.DateTime(key='foo')
+        tz_now = timezone('UTC').localize(dt.datetime.now())
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': tz_now}
+        ).equals(
+            {'foo': tz_now}
+        )
+
+    def test_it_should_accept_timezone_aware_datetimes_even_with_custom_validator(self):
+        from nonobvious import fields
+        from pytz import timezone
+        UTC = timezone('UTC')
+
+        field = fields.DateTime(key='foo', validator=lambda d: d > UTC.localize(dt.datetime(1, 1, 1)))
+        tz_now = UTC.localize(dt.datetime.now())
+
+        ensure(
+            V.parse(dict([field.validation_spec])).validate
+        ).called_with(
+            {'foo': tz_now}
+        ).equals(
+            {'foo': tz_now}
+        )

@@ -2,6 +2,7 @@
 """entities.fields
 """
 from concon import ConstraintError
+import valideer as V
 
 __all__ = ['Field', 'Integer', 'String']
 
@@ -21,7 +22,10 @@ class Field(object):
         self.required = required
         self.default = default
         if validator is not None:
-            self.validator = validator
+            if self.validator is Field.validator:
+                self.validator = validator
+            else:
+                self.validator = V.AllOf(self.validator, validator)
 
     def __get__(self, obj, type=None):
         if obj is None:
@@ -57,3 +61,17 @@ class Time(Field):
 
 class DateTime(Field):
     validator = 'datetime'
+
+    def has_tzinfo(self, d):
+        return d.tzinfo is not None and d.tzinfo.utcoffset(d) is not None
+
+    def __init__(self, **kwargs):
+        naive_ok = kwargs.pop('naive_ok', False)
+        if not naive_ok:
+            validator = kwargs.get('validator')
+            if validator is not None:
+                validator = V.AllOf(validator, self.has_tzinfo)
+            else:
+                validator = self.has_tzinfo
+            kwargs['validator'] = validator
+        super(DateTime, self).__init__(**kwargs)
