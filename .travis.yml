@@ -4,4 +4,4 @@ python:
 # command to install dependencies
 install: "pip install -r test-requirements.txt"
 # command to run tests
-script: nosetests
+script: nosetests -i '^(it|ensure|must|should|deve|specs?|examples?)' -i '(specs?|examples?|exemplos?)(.py)?$' --with-spec --spec-color --with-coverage --cover-package=nonobvious
