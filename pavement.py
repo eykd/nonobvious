@@ -9,7 +9,7 @@ def test():
     """Run the test suite w/ nosetests, with coverage and pretty colors.
     """
     sh(" ".join([
-        "nosetests",
+        "bin/nosetests",
         "-i",
         "'^(it|ensure|must|should|deve|specs?|examples?)'",
         "-i",
