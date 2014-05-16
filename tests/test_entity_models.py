@@ -7,6 +7,11 @@ from ensure import ensure
 
 
 class ModelTests(unittest.TestCase):
+    def test_base_model_should_not_have_fields(self):
+        from nonobvious import models
+
+        ensure(getattr).called_with(models.Model, 'fields').raises(AttributeError)
+
     def test_it_should_have_fields(self):
         from nonobvious import models
 
