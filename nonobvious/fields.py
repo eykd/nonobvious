@@ -16,16 +16,25 @@ class Field(object):
         """
         return True
 
-    def __init__(self, key=None, required=False, default=None, validator=None):
-        super(Field, self).__init__()
-        self.key = key
-        self.required = required
-        self.default = default
+    choices = None
+
+    def add_validator(self, validator):
         if validator is not None:
             if self.validator is Field.validator:
                 self.validator = validator
             else:
                 self.validator = V.AllOf(self.validator, validator)
+
+
+    def __init__(self, key=None, required=False, default=None, validator=None, choices=None):
+        super(Field, self).__init__()
+        self.key = key
+        self.required = required
+        self.default = default
+        self.add_validator(validator)
+        if choices is not None:
+            self.choices = tuple(choices)
+            self.add_validator(V.Enum(self.choices))
 
     def __get__(self, obj, type=None):
         if obj is None:

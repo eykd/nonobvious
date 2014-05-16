@@ -38,6 +38,17 @@ class FieldTests(unittest.TestCase):
         field = fields.Field(key='foo', validator='string', required=True)
         ensure(field.validation_spec).equals(('+foo', 'string'))
 
+    def test_it_should_accept_and_enforce_choices(self):
+        from nonobvious import fields
+
+        field = fields.Field(key='foo', validator='string', choices=('bar', 'baz'))
+
+        validator = V.parse(dict([field.validation_spec]))
+
+        ensure(validator.validate).called_with({'foo': 'bar'}).equals({'foo': 'bar'})
+        ensure(validator.validate).called_with({'foo': 'baz'}).equals({'foo': 'baz'})
+        ensure(validator.validate).called_with({'foo': 'boo'}).raises(V.ValidationError)
+
 
 class StringFieldTests(unittest.TestCase):
     def test_it_should_have_validation_spec(self):
