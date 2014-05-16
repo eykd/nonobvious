@@ -55,15 +55,15 @@ class Model(frozendict):
     ValidationError = ValidationError
 
     def __init__(self, *args, **kwargs):
-        defaults = {}
+        data = {}
         for name, field in self.fields.iteritems():
             if name not in kwargs and field.default is not None:
-                defaults[name] = field.default
+                data[name] = field.default
         for arg in args:
-            defaults.update(arg)
-        super(Model, self).__init__(defaults, **kwargs)
+            data.update(arg)
+        data.update(kwargs)
         validator = valideer.parse(self.validation_spec)
-        validator.validate(self)
+        super(Model, self).__init__(validator.validate(data))
 
     def copy(self, *args, **kwargs):
         """Return a shallow copy, optionally with updated members as specified.

@@ -178,3 +178,34 @@ class DateTimeFieldTests(unittest.TestCase):
         ).equals(
             {'foo': tz_now}
         )
+
+
+class EmbeddedFieldTests(unittest.TestCase):
+    def setUp(self):
+        from nonobvious import fields
+        from nonobvious import models
+
+        class MyEmbeddedModel(models.Model):
+            foo = fields.String()
+        self.MyEmbeddedModel = MyEmbeddedModel
+
+        class MyEmbeddingModel(models.Model):
+            child = fields.Embedded(model=MyEmbeddedModel)
+        self.MyEmbeddingModel = MyEmbeddingModel
+
+    def test_it_should_allow_embedded_models(self):
+        embedded = self.MyEmbeddedModel(foo='blah')
+        ensure(self.MyEmbeddingModel).called_with(child=embedded).equals({'child': embedded})
+
+        parent = self.MyEmbeddingModel(child=embedded)
+        ensure(parent.child.foo).equals('blah')
+
+    def test_it_should_adapt_embedded_models(self):
+        # After all, Models are just dicts corresponding to a spec
+        parent = self.MyEmbeddingModel(child={'foo': 'blah'})
+
+        ensure(parent.child).is_an_instance_of(self.MyEmbeddedModel)
+        ensure(parent.child.foo).equals('blah')
+        ensure(parent).equals({'child': {'foo': 'blah'}})
+
+        ensure(self.MyEmbeddingModel).called_with(child={'foo': 2}).raises(self.MyEmbeddedModel.ValidationError)
