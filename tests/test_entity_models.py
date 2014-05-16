@@ -15,6 +15,19 @@ class ModelTests(unittest.TestCase):
 
         ensure(MyModel).has_attribute('fields')
 
+    def test_multiple_models_should_not_share_fields(self):
+        from nonobvious import models
+        from nonobvious import fields
+
+        class MyModel(models.Model):
+            foo = fields.Field()
+
+        class MyOtherModel(models.Model):
+            bar = fields.Field()
+
+        ensure(MyModel.fields).has_length(1)
+        ensure(MyOtherModel.fields).has_length(1)
+
     def test_it_should_populate_fields(self):
         from nonobvious import models
         from nonobvious import fields
