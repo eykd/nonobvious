@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""entities.models
+"""nonobvious.entities
 """
 from concon import frozendict, ConstraintError
 from valideer import ValidationError
@@ -7,27 +7,27 @@ import valideer
 
 from . import fields
 
-__all__ = ['Model', 'ConstraintError', 'ValidationError']
+__all__ = ['Entity', 'ConstraintError', 'ValidationError']
 
 
-class ModelMeta(type):
+class EntityMeta(type):
     def __new__(cls, name, bases, attrs):
         _new = attrs.pop('__new__', None)
         new_attrs = {'__new__': _new} if _new is not None else {}
-        new_class = super(ModelMeta, cls).__new__(cls, name, bases, new_attrs)
+        new_class = super(EntityMeta, cls).__new__(cls, name, bases, new_attrs)
 
-        if not hasattr(new_class, 'models'):
+        if not hasattr(new_class, 'entities'):
             # This branch only executes when processing the base class itself.
             # So, since this is a new base class, not an implementation, this
             # class shouldn't be registered as an implementation. Instead, it sets up a
             # dict where implementations can be registered later.
-            new_class.models = {}
+            new_class.entities = {}
             for name, value in attrs.items():
                 setattr(new_class, name, value)
         else:
             # This must be a model implementation, which should be registered.
             # Then it gets its own fields record.
-            new_class.models[name] = new_class
+            new_class.entities[name] = new_class
             new_class.fields = {}
 
             validation_spec = []
@@ -41,16 +41,16 @@ class ModelMeta(type):
         return new_class
 
 
-class Model(frozendict):
-    """A Model is simply a read-only dict with a light dusting of magic.
+class Entity(frozendict):
+    """A Entity is simply a read-only dict with a light dusting of magic.
 
-    The Model can be subclassed to add fields from ``nonobvious.fields``
+    The Entity can be subclassed to add fields from ``nonobvious.fields``
     (similar to Django models).
 
-    Model instances provide copy-on-write functionality via the `copy` method.
+    Entity instances provide copy-on-write functionality via the `copy` method.
 
     """
-    __metaclass__ = ModelMeta
+    __metaclass__ = EntityMeta
     ConstraintError = ConstraintError
     ValidationError = ValidationError
 
@@ -63,7 +63,7 @@ class Model(frozendict):
             data.update(arg)
         data.update(kwargs)
         validator = valideer.parse(self.validation_spec)
-        super(Model, self).__init__(validator.validate(data))
+        super(Entity, self).__init__(validator.validate(data))
 
     def copy(self, *args, **kwargs):
         """Return a shallow copy, optionally with updated members as specified.

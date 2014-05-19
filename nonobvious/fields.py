@@ -58,25 +58,26 @@ class Boolean(Field):
 class Embedded(Field):
     @property
     def validator(self):
-        return V.AdaptTo(self.model)
+        return V.AdaptTo(self.entity)
 
     @property
-    def model(self):
-        if not hasattr(self, '_model'):
-            model_spec = self.model_spec
-            if isinstance(model_spec, basestring):
-                from . import models
-                self._model = models.Model.models[model_spec]
+    def entity(self):
+        if not hasattr(self, '_entity'):
+            entity_spec = self.entity_spec
+            if isinstance(entity_spec, basestring):
+                from . import entities
+                self._entity = entities.Entity.entities[entity_spec]
             else:
-                self._model = model_spec
-        return self._model
+                self._entity = entity_spec
+        return self._entity
 
     def __init__(self, **kwargs):
-        model_spec = kwargs.pop('model')
-        if model_spec is None:
-            raise TypeError('Embedded field requires a `model` argument.')
+        try:
+            entity_spec = kwargs.pop('entity')
+        except KeyError:
+            raise TypeError('Embedded field requires an `entity` argument.')
         super(Embedded, self).__init__(**kwargs)
-        self.model_spec = model_spec
+        self.entity_spec = entity_spec
 
 
 class String(Field):

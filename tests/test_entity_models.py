@@ -1,80 +1,80 @@
 # -*- coding: utf-8 -*-
-"""tests for entity models
+"""tests for entities
 """
 import unittest
 
 from ensure import ensure
 
 
-class ModelTests(unittest.TestCase):
-    def test_base_model_should_not_have_fields(self):
-        from nonobvious import models
+class EntityTests(unittest.TestCase):
+    def test_base_entity_should_not_have_fields(self):
+        from nonobvious import entities
 
-        ensure(getattr).called_with(models.Model, 'fields').raises(AttributeError)
+        ensure(getattr).called_with(entities.Entity, 'fields').raises(AttributeError)
 
     def test_it_should_have_fields(self):
-        from nonobvious import models
+        from nonobvious import entities
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             pass
 
-        ensure(MyModel).has_attribute('fields')
+        ensure(MyEntity).has_attribute('fields')
 
-    def test_multiple_models_should_not_share_fields(self):
-        from nonobvious import models
+    def test_multiple_entities_should_not_share_fields(self):
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.Field()
 
-        class MyOtherModel(models.Model):
+        class MyOtherEntity(entities.Entity):
             bar = fields.Field()
 
-        ensure(MyModel.fields).has_length(1)
-        ensure(MyOtherModel.fields).has_length(1)
+        ensure(MyEntity.fields).has_length(1)
+        ensure(MyOtherEntity.fields).has_length(1)
 
     def test_it_should_populate_fields(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.Field()
 
-        ensure(MyModel.fields).has_key('foo')
-        ensure(MyModel.fields['foo']).equals(MyModel.foo)
+        ensure(MyEntity.fields).has_key('foo')
+        ensure(MyEntity.fields['foo']).equals(MyEntity.foo)
 
     def test_it_should_populate_defaults(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.Field(default='bar')
 
-        model = MyModel()
-        ensure(model.foo).equals("bar")
-        ensure(model['foo']).equals("bar")
+        entity = MyEntity()
+        ensure(entity.foo).equals("bar")
+        ensure(entity['foo']).equals("bar")
 
     def test_it_should_be_immutable(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.Field()
 
-        model = MyModel(foo='bar')
-        ensure(model.__setitem__).called_with('foo', 'baz').raises(MyModel.ConstraintError)
-        ensure(setattr).called_with(model, 'foo', 'baz').raises(MyModel.ConstraintError)
-        ensure(model.__setitem__).called_with('flugle', 'baz').raises(MyModel.ConstraintError)
+        entity = MyEntity(foo='bar')
+        ensure(entity.__setitem__).called_with('foo', 'baz').raises(MyEntity.ConstraintError)
+        ensure(setattr).called_with(entity, 'foo', 'baz').raises(MyEntity.ConstraintError)
+        ensure(entity.__setitem__).called_with('flugle', 'baz').raises(MyEntity.ConstraintError)
 
     def test_it_should_have_a_validation_spec(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.String(required=True)
             bar = fields.Integer(default=2)
 
-        ensure(MyModel.validation_spec).equals(
+        ensure(MyEntity.validation_spec).equals(
             {
                 '+foo': 'string',
                 'bar': 'integer',
@@ -82,31 +82,31 @@ class ModelTests(unittest.TestCase):
         )
 
     def test_it_should_validate(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.String(required=True)
             bar = fields.Integer(default=2)
 
-        ensure(MyModel).called_with().raises(MyModel.ValidationError)
-        ensure(MyModel).called_with(blah='!!!').raises(MyModel.ValidationError)
-        ensure(MyModel).called_with(foo='baz').equals({'foo': 'baz', 'bar': 2})
+        ensure(MyEntity).called_with().raises(MyEntity.ValidationError)
+        ensure(MyEntity).called_with(blah='!!!').raises(MyEntity.ValidationError)
+        ensure(MyEntity).called_with(foo='baz').equals({'foo': 'baz', 'bar': 2})
 
     def test_it_should_produce_a_copy(self):
-        from nonobvious import models
+        from nonobvious import entities
         from nonobvious import fields
 
-        class MyModel(models.Model):
+        class MyEntity(entities.Entity):
             foo = fields.String(required=True)
             bar = fields.Integer(default=2)
 
-        model1 = MyModel(foo='baz')
-        model2 = model1.copy()
-        ensure(model2).is_not(model1)
-        ensure(model2).equals(model1)
+        entity1 = MyEntity(foo='baz')
+        entity2 = entity1.copy()
+        ensure(entity2).is_not(entity1)
+        ensure(entity2).equals(entity1)
 
-        model3 = model2.copy(bar=3)
-        ensure(model3).does_not_equal(model2)
-        ensure(model3['foo']).equals(model2['foo'])
-        ensure(model3['bar']).equals(3)
+        entity3 = entity2.copy(bar=3)
+        ensure(entity3).does_not_equal(entity2)
+        ensure(entity3['foo']).equals(entity2['foo'])
+        ensure(entity3['bar']).equals(3)

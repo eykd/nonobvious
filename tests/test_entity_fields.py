@@ -13,20 +13,20 @@ class FieldTests(unittest.TestCase):
     def test_it_should_be_a_descriptor(self):
         from nonobvious import fields
 
-        class MyModel(dict):
+        class MyEntity(dict):
             foo = fields.Field(key='foo')
 
-        model = MyModel(foo="bar")
-        ensure(model.foo).equals("bar")
+        entity = MyEntity(foo="bar")
+        ensure(entity.foo).equals("bar")
 
     def test_it_should_have_defaults(self):
         from nonobvious import fields
 
-        class MyModel(dict):
+        class MyEntity(dict):
             foo = fields.Field(default='bar')
 
-        model = MyModel()
-        ensure(model.foo).equals("bar")
+        entity = MyEntity()
+        ensure(entity.foo).equals("bar")
 
     def test_it_should_have_a_validation_spec(self):
         from nonobvious import fields
@@ -183,29 +183,49 @@ class DateTimeFieldTests(unittest.TestCase):
 class EmbeddedFieldTests(unittest.TestCase):
     def setUp(self):
         from nonobvious import fields
-        from nonobvious import models
+        from nonobvious import entities
 
-        class MyEmbeddedModel(models.Model):
+        class MyEmbeddedEntity(entities.Entity):
             foo = fields.String()
-        self.MyEmbeddedModel = MyEmbeddedModel
+        self.MyEmbeddedEntity = MyEmbeddedEntity
 
-        class MyEmbeddingModel(models.Model):
-            child = fields.Embedded(model=MyEmbeddedModel)
-        self.MyEmbeddingModel = MyEmbeddingModel
+        class MyEmbeddingEntity(entities.Entity):
+            child = fields.Embedded(entity=MyEmbeddedEntity)
+        self.MyEmbeddingEntity = MyEmbeddingEntity
 
-    def test_it_should_allow_embedded_models(self):
-        embedded = self.MyEmbeddedModel(foo='blah')
-        ensure(self.MyEmbeddingModel).called_with(child=embedded).equals({'child': embedded})
+    def test_it_should_allow_embedded_entities(self):
+        embedded = self.MyEmbeddedEntity(foo='blah')
+        ensure(self.MyEmbeddingEntity).called_with(child=embedded).equals({'child': embedded})
 
-        parent = self.MyEmbeddingModel(child=embedded)
+        parent = self.MyEmbeddingEntity(child=embedded)
         ensure(parent.child.foo).equals('blah')
 
-    def test_it_should_adapt_embedded_models(self):
-        # After all, Models are just dicts corresponding to a spec
-        parent = self.MyEmbeddingModel(child={'foo': 'blah'})
+    def test_it_should_allow_embedded_entities_by_name(self):
+        from nonobvious import fields
+        from nonobvious import entities
 
-        ensure(parent.child).is_an_instance_of(self.MyEmbeddedModel)
+        class MyEmbeddedEntity(entities.Entity):
+            foo = fields.String()
+
+        class MyEmbeddingEntity(entities.Entity):
+            child = fields.Embedded(entity="MyEmbeddedEntity")
+
+        embedded = MyEmbeddedEntity(foo='blah')
+        ensure(MyEmbeddingEntity).called_with(child=embedded).equals({'child': embedded})
+
+        parent = MyEmbeddingEntity(child=embedded)
+        ensure(parent.child.foo).equals('blah')
+
+    def test_it_should_adapt_embedded_entities(self):
+        # After all, Entities are just dicts corresponding to a spec
+        parent = self.MyEmbeddingEntity(child={'foo': 'blah'})
+
+        ensure(parent.child).is_an_instance_of(self.MyEmbeddedEntity)
         ensure(parent.child.foo).equals('blah')
         ensure(parent).equals({'child': {'foo': 'blah'}})
 
-        ensure(self.MyEmbeddingModel).called_with(child={'foo': 2}).raises(self.MyEmbeddedModel.ValidationError)
+        ensure(self.MyEmbeddingEntity).called_with(child={'foo': 2}).raises(self.MyEmbeddedEntity.ValidationError)
+
+    def test_it_should_fail_on_missing_entity_definition(self):
+        from nonobvious import fields
+        ensure(fields.Embedded).called_with().raises(TypeError)
