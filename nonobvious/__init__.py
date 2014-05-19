@@ -3,7 +3,7 @@
 
 The first Python package to tunnel to Java!
 """
-from .models import *
+from .entities import *
 from .fields import *
 import valideer as V
 from valideer import parse as get_validator
