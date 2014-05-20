@@ -35,5 +35,6 @@ local_secrets.ini
 local.py
 *.sublime-project
 *.sublime-workspace
+.coverage
 .tox
 dist
