@@ -110,3 +110,16 @@ class EntityTests(unittest.TestCase):
         ensure(entity3).does_not_equal(entity2)
         ensure(entity3['foo']).equals(entity2['foo'])
         ensure(entity3['bar']).equals(3)
+
+    def test_it_should_represent_itself_as_a_string(self):
+        from nonobvious import entities
+        from nonobvious import fields
+
+        class MyEntity(entities.Entity):
+            foo = fields.String()
+
+        entity = MyEntity(foo='baz')
+        ensure(repr(entity)).equals("<MyEntity {'foo': 'baz'}>")
+
+        entity = MyEntity(foo='snickerdoodle')
+        ensure(repr(entity)).equals("<MyEntity {'foo': 'snicke...}>")
