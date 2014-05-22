@@ -2,7 +2,7 @@
 --allow-external figleaf
 --allow-unverified figleaf
 coverage==3.7.1
-python-coveralls==2.4.2
+coveralls==0.4.2
 ensure==0.1.8
 figleaf==0.6.1
 mock==1.0.1
