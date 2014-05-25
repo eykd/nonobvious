@@ -57,7 +57,7 @@ class Entity(frozendict):
     def __init__(self, *args, **kwargs):
         data = {}
         for name, field in self.fields.iteritems():
-            if name not in kwargs and field.default is not None:
+            if name not in kwargs and field.default is not fields.NIL:
                 data[name] = field.default
         for arg in args:
             data.update(arg)

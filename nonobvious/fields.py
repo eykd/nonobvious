@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """entities.fields
 """
+from concon import frozenlist
 from concon import ConstraintError
 import valideer as V
 
 __all__ = ['Field', 'Integer', 'String']
+
+
+class NIL: pass
 
 
 class Field(object):
@@ -25,7 +29,7 @@ class Field(object):
             else:
                 self.validator = V.AllOf(self.validator, validator)
 
-    def __init__(self, key=None, required=False, default=None, validator=None, choices=None):
+    def __init__(self, key=None, required=False, default=NIL, validator=None, choices=None):
         super(Field, self).__init__()
         self.key = key
         self.required = required
@@ -84,8 +88,22 @@ class String(Field):
     validator = 'string'
 
 
+class StringList(Field):
+    validator = V.AllOf(
+        V.HomogeneousSequence(item_schema = 'string'),
+        V.AdaptTo(frozenlist)
+    )
+
+
 class Integer(Field):
     validator = 'integer'
+
+
+class IntegerList(Field):
+    validator = V.AllOf(
+        V.HomogeneousSequence(item_schema = 'integer'),
+        V.AdaptTo(frozenlist)
+    )
 
 
 class Date(Field):
