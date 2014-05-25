@@ -73,7 +73,4 @@ class Entity(frozendict):
         return self.__class__(self, *args, **kwargs)
 
     def __repr__(self):
-        sr = super(Entity, self).__repr__()
-        if len(sr) > 20:
-            sr = sr[:15] + '...}'
-        return "<{} {}>".format(self.__class__.__name__, sr)
+        return "{}({})".format(self.__class__.__name__, super(Entity, self).__repr__())

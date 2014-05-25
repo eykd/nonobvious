@@ -119,7 +119,4 @@ class EntityTests(unittest.TestCase):
             foo = fields.String()
 
         entity = MyEntity(foo='baz')
-        ensure(repr(entity)).equals("<MyEntity {'foo': 'baz'}>")
-
-        entity = MyEntity(foo='snickerdoodle')
-        ensure(repr(entity)).equals("<MyEntity {'foo': 'snicke...}>")
+        ensure(repr(entity)).equals("MyEntity({'foo': 'baz'})")
