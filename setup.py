@@ -50,7 +50,7 @@ SETUP = dict(
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
         'Topic :: Software Development :: Libraries',
-        ],
-    )
+    ],
+)
 
 setup(**SETUP)
