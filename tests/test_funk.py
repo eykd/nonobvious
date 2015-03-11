@@ -244,3 +244,15 @@ class FunkTests(unittest.TestCase):
     def test_map_on_should_map_a_function_to_a_sequence(self):
         sequence = [1, 2, 3]
         ensure(list(funk.map_on(sequence, self.double))).equals([2, 4, 6])
+
+    def test_reduce_should_reduce_a_sequence_using_a_function(self):
+        sequence = [1, 2, 3]
+        ensure(funk.reduce).called_with(funk.add, sequence).equals(6)
+        ensure(funk.reduce).called_with(funk.add, sequence, 6).equals(12)
+        ensure(funk.reduce).called_with(funk.add, sequence, initial=6).equals(12)
+
+    def test_reduce_on_should_reduce_a_sequence_using_a_function(self):
+        sequence = [1, 2, 3]
+        ensure(funk.reduce_on).called_with(sequence, funk.add).equals(6)
+        ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
+        ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)

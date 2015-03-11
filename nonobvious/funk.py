@@ -234,23 +234,33 @@ map_on = named(
 
 map = curry(map)
 
+_reduce = __builtins__['reduce']
 
-@doc(reduce.__doc__)
+
 def reduce(function, sequence, initial=SENTINEL):
-    return (reduce(function, sequence)
+    """reduce(function, sequence[, initial]) -> reduced_value
+
+    Apply a function of two arguments cumulatively to the items of a sequence,
+    from left to right, so as to reduce the sequence to a single value.
+
+    >>> reduce(lambda x, y: x+y, [1, 2, 3, 4, 5]) == ((((1+2)+3)+4)+5)
+    True
+
+    If `initial` is present, it is placed before the items of the sequence in
+    the calculation, and serves as a default when the sequence is empty.
+
+    """
+    return (_reduce(function, sequence)
             if initial is SENTINEL
-            else reduce(function, sequence, initial))
+            else _reduce(function, sequence, initial))
 
 
-reduce_on = named(
-    "reduce_on",
-    doc_on(
-        reverse_args(reduce),
-        """reduce_on(sequence, callable[, initial]) -> reduced_value
+def reduce_on(sequence, function, initial=SENTINEL):
+    """reduce_on(sequence, callable[, initial]) -> reduced_value
 
-        The inverse of reduce(callable, sequence)
-        """
-    ))
+    The inverse of reduce(callable, sequence)
+    """
+    return reduce(function, sequence, initial=initial)
 
 
 @curry
