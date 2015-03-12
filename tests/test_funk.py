@@ -27,10 +27,19 @@ class FunkTests(unittest.TestCase):
         self.double = double
 
     def test_debugger_should_start_ipdb_debugger(self):
-        ipdb_set_trace = Mock()
-        with patch('ipdb.set_trace', ipdb_set_trace):
+        fake_ipdb = Mock()
+
+        orig_import = __import__
+
+        def fake_ipdb_import(mod, *args):
+            if mod == 'ipdb':
+                return fake_ipdb
+            else:
+                return orig_import(mod, *args)
+
+        with patch('__builtin__.__import__', fake_ipdb_import):
             funk.debugger()
-            ipdb_set_trace.assert_called_once_with()
+            fake_ipdb.set_trace.assert_called_once_with()
 
     def test_debugger_should_start_pdb_debugger(self):
         pdb_set_trace = Mock()
