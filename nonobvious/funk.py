@@ -308,6 +308,7 @@ map = curry(map)
 _reduce = __builtins__['reduce']
 
 
+@curry
 def reduce(function, sequence, initial=SENTINEL):
     """reduce(function, sequence[, initial]) -> reduced_value
 
