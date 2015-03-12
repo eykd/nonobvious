@@ -108,7 +108,8 @@ def curry(func, expected_arg_count=None):
             return partial(func, *args, **kwargs)
 
     # Fix the docs
-    doc = 'Curried function. Call with fewer positional arguments to get a partially-applied function.'
+    doc = ('Curried function. Call with fewer positional arguments to get a '
+           'partially-applied function.')
     return append_to_doc(wrapper, doc)
 
 
@@ -121,7 +122,8 @@ def reverse_args(func):
     def wrapper(*args, **kwargs):
         if expected_arg_count:
             # We only want to reverse positional arguments.
-            args = tuple(reversed(args[:expected_arg_count])) + args[expected_arg_count:]
+            args = (tuple(reversed(args[:expected_arg_count]))
+                    + args[expected_arg_count:])
             return func(*args, **kwargs)
         else:
             return func(*reversed(args), **kwargs)
@@ -171,7 +173,7 @@ doc = curry(doc)
 
 
 def compose(*funcs):
-    """compose(*funcs) -> composed_func
+    """compose(func_a, func_b, func_c) -> lambda *a, **k: func_a(func_b(func_c(*a, **k)))
 
     Compose the given functions, returning a function which will call each on
     the result of the next.
@@ -191,7 +193,8 @@ pipeline = named(
         reverse_args(compose),
         """pipeline(*funcs) -> pipelined_func
 
-        Arrange the given functions in a pipeline, each called on the result of the prior.
+        Arrange the given functions in a pipeline, each called on the result of
+        the prior.
         """
     ))
 
@@ -208,7 +211,8 @@ get_attr_from = named(
     "get_attr_from",
     doc_on(
         reverse_args(get_attr),
-        """getattr_from(obj, key[, default=value]) -> getattr(obj, key, value)"""
+        """getattr_from(obj, key[, default=value]) -> getattr(obj, key, value)
+        """
     ))
 
 
@@ -225,7 +229,8 @@ get_item_from = named(
     "get_item_from",
     doc_on(
         reverse_args(get_item),
-        """get_item_from(a_dict, key[, default=value]) -> a_dict.get(key, value)"""
+        """get_item_from(a_dict, key[, default=value]) -> a_dict.get(key, value)
+        """
     ))
 
 
