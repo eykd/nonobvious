@@ -104,8 +104,8 @@ def reverse_args(func):
     return wrapper
 
 
-def ident(func):
-    """Return a new function with the same identity as the old.
+def wrap(func):
+    """Return a new function that wraps the old.
     """
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -448,7 +448,7 @@ and_by = curry(
 
 concat_by = curry(
     doc_on(
-        ident(op.concat),
+        wrap(op.concat),
         """concat_by(a, b) -> b + a
 
         For a and b sequences, concatenate to form a new sequence.
@@ -478,7 +478,7 @@ div_by = curry(
 
 eq = curry(
     doc_on(
-        ident(op.eq),
+        wrap(op.eq),
         """eq(a, b) -> b == a
         """), 2)
 
@@ -501,36 +501,52 @@ gt = curry(
         """), 2)
 
 is_callable = doc_on(
-    ident(op.isCallable),
+    wrap(op.isCallable),
     """is_callable(a) -> callable(a)
 
     Return True if a is callable, False otherwise.
     """)
 
 is_mapping = doc_on(
-    ident(op.isMappingType),
+    wrap(op.isMappingType),
     """isMappingType(a) -> isinstance(a, collections.Mapping)
 
     Return True if a has a mapping type, False otherwise.
     """)
 
 is_number = doc_on(
-    ident(op.isNumberType),
+    wrap(op.isNumberType),
     """is_number(a) -> isinstance(a, numbers.Number)
 
     Return True if a has a numeric type, False otherwise.
     """)
 
 is_sequence = doc_on(
-    ident(op.isSequenceType),
+    wrap(op.isSequenceType),
     """is_sequence(a) -> isinstance(a, collections.Sequence)
 
     Return True if a has a sequence type, False otherwise.
     """)
 
+
+@curry
+def is_a(a_type, obj):
+    """Check if the given object is an instance of a particular type.
+    """
+    return isinstance(obj, a_type)
+
+is_an = is_a
+
+
+is_exception = doc_on(
+    is_an(Exception),
+    """Check if the given object as in Exception.
+    """
+)
+
 is_ = curry(
     doc_on(
-        ident(op.is_),
+        wrap(op.is_),
         """is_(a, b) -> b is a
         """), 2)
 
@@ -559,7 +575,7 @@ lt = curry(
         """), 2)
 
 method_caller = doc_on(
-    ident(op.methodcaller),
+    wrap(op.methodcaller),
     """method_caller(name, ...) --> methodcaller object
 
     Return a callable object that calls the given method on its operand.

@@ -138,8 +138,8 @@ class FunkTests(unittest.TestCase):
         funk.doc(new_docs, self.f)
         ensure(self.f.__doc__).equals(new_docs)
 
-    def test_ident_should_simply_wrap_the_function_call(self):
-        f = funk.ident(op.add)
+    def test_wrap_should_simply_wrap_the_function_call(self):
+        f = funk.wrap(op.add)
         ensure(f).called_with(2, 2).equals(4)
 
     def test_fluent_method_should_always_return_self(self):
