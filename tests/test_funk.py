@@ -286,6 +286,13 @@ class FunkTests(unittest.TestCase):
         ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
         ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)
 
+    def test_is_a_should_test_for_type(self):
+        ensure(funk.is_a).called_with(float, 5.0).is_true()
+        ensure(funk.is_a).called_with(float, 5).is_false()
+
+        ensure(funk.is_an).called_with(int, 5).is_true()
+        ensure(funk.is_an).called_with(int, 5.0).is_false()
+
     def test_handle_errors_should_capture_exceptions(self):
         def f(arg):
             raise TypeError()
