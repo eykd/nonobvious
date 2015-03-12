@@ -434,10 +434,10 @@ def fluent(meth):
 # Operations, funky style
 abs = op.abs
 
-add_by = curry(
+add = curry(
     doc_on(
         reverse_args(op.add),
-        """add_by(a, b) -> b + a
+        """add(a, b) -> b + a
         """), 2)
 
 and_by = curry(
@@ -500,28 +500,28 @@ gt = curry(
         """gt(a, b) -> b > a
         """), 2)
 
-is_callable = doc(
+is_callable = doc_on(
     ident(op.isCallable),
     """is_callable(a) -> callable(a)
 
     Return True if a is callable, False otherwise.
     """)
 
-is_mapping = doc(
+is_mapping = doc_on(
     ident(op.isMappingType),
     """isMappingType(a) -> isinstance(a, collections.Mapping)
 
     Return True if a has a mapping type, False otherwise.
     """)
 
-is_number = doc(
+is_number = doc_on(
     ident(op.isNumberType),
     """is_number(a) -> isinstance(a, numbers.Number)
 
     Return True if a has a numeric type, False otherwise.
     """)
 
-is_sequence = doc(
+is_sequence = doc_on(
     ident(op.isSequenceType),
     """is_sequence(a) -> isinstance(a, collections.Sequence)
 

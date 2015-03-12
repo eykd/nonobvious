@@ -48,6 +48,19 @@ class FunkTests(unittest.TestCase):
                 funk.debugger()
                 pdb_set_trace.assert_called_once_with()
 
+    def test_append_to_doc_should_append_to_a_functions_docstring(self):
+        def f():
+            "Some documentation."
+
+        ensure(funk.append_to_doc).called_with(f, "Something else.").is_(f)
+        ensure(f.__doc__).equals("Some documentation.\n\nSomething else.")
+
+        mock_warn = Mock()
+        with patch("warnings.warn", mock_warn):
+            ensure(funk.append_to_doc).called_with(op.add, "This won't work.").is_(op.add)
+            ensure(mock_warn.called).is_true()
+            ensure(mock_warn.call_count).equals(1)
+
     def test_get_positional_arg_count_counts_positional_arguments(self):
         def foo(a, b): pass
 
@@ -81,8 +94,11 @@ class FunkTests(unittest.TestCase):
         ensure(curried).called_with(2, 3).equals((1, 2, 3))
 
     def test_compose_should_create_nested_functional_calls(self):
-        fc = funk.compose(str, funk.curry(op.add)(2))
+        fc = funk.compose(str, funk.add(2))
         ensure(fc).called_with(2).equals('4')
+
+        fc = funk.compose(str, funk.add(2), funk.mul_by(2))
+        ensure(fc).called_with(2).equals('6')
 
     def test_pipeline_should_create_functional_pipelines(self):
         fc = funk.pipeline(str, funk.curry(op.add)('2'))
@@ -112,6 +128,10 @@ class FunkTests(unittest.TestCase):
         new_docs = "The new docs!"
         funk.doc(new_docs, self.f)
         ensure(self.f.__doc__).equals(new_docs)
+
+    def test_ident_should_simply_wrap_the_function_call(self):
+        f = funk.ident(op.add)
+        ensure(f).called_with(2, 2).equals(4)
 
     def test_fluent_method_should_always_return_self(self):
         class Foo(object):
@@ -247,12 +267,12 @@ class FunkTests(unittest.TestCase):
 
     def test_reduce_should_reduce_a_sequence_using_a_function(self):
         sequence = [1, 2, 3]
-        ensure(funk.reduce).called_with(funk.add_by, sequence).equals(6)
-        ensure(funk.reduce).called_with(funk.add_by, sequence, 6).equals(12)
-        ensure(funk.reduce).called_with(funk.add_by, sequence, initial=6).equals(12)
+        ensure(funk.reduce).called_with(funk.add, sequence).equals(6)
+        ensure(funk.reduce).called_with(funk.add, sequence, 6).equals(12)
+        ensure(funk.reduce).called_with(funk.add, sequence, initial=6).equals(12)
 
     def test_reduce_on_should_reduce_a_sequence_using_a_function(self):
         sequence = [1, 2, 3]
-        ensure(funk.reduce_on).called_with(sequence, funk.add_by).equals(6)
-        ensure(funk.reduce_on).called_with(sequence, funk.add_by, 6).equals(12)
-        ensure(funk.reduce_on).called_with(sequence, funk.add_by, initial=6).equals(12)
+        ensure(funk.reduce_on).called_with(sequence, funk.add).equals(6)
+        ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
+        ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)
