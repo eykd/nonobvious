@@ -247,12 +247,12 @@ class FunkTests(unittest.TestCase):
 
     def test_reduce_should_reduce_a_sequence_using_a_function(self):
         sequence = [1, 2, 3]
-        ensure(funk.reduce).called_with(funk.add, sequence).equals(6)
-        ensure(funk.reduce).called_with(funk.add, sequence, 6).equals(12)
-        ensure(funk.reduce).called_with(funk.add, sequence, initial=6).equals(12)
+        ensure(funk.reduce).called_with(funk.add_by, sequence).equals(6)
+        ensure(funk.reduce).called_with(funk.add_by, sequence, 6).equals(12)
+        ensure(funk.reduce).called_with(funk.add_by, sequence, initial=6).equals(12)
 
     def test_reduce_on_should_reduce_a_sequence_using_a_function(self):
         sequence = [1, 2, 3]
-        ensure(funk.reduce_on).called_with(sequence, funk.add).equals(6)
-        ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
-        ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)
+        ensure(funk.reduce_on).called_with(sequence, funk.add_by).equals(6)
+        ensure(funk.reduce_on).called_with(sequence, funk.add_by, 6).equals(12)
+        ensure(funk.reduce_on).called_with(sequence, funk.add_by, initial=6).equals(12)
