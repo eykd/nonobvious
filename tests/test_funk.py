@@ -285,3 +285,25 @@ class FunkTests(unittest.TestCase):
         ensure(funk.reduce_on).called_with(sequence, funk.add).equals(6)
         ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
         ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)
+
+    def test_handle_errors_should_capture_exceptions(self):
+        def f(arg):
+            raise TypeError()
+
+        ensure(f).called_with('foo').raises(TypeError)
+        handled = funk.handle_errors(f)
+        ensure(handled).called_with('foo').is_a(TypeError)
+
+    def test_handle_errors_should_pass_exceptions_through(self):
+        side_effect = Mock()
+
+        def f(arg):
+            side_effect()
+            return 'foo'
+
+        ensure(f).called_with(TypeError()).equals('foo')
+        side_effect.assert_called_once_with()
+        side_effect.reset_mock()
+        handled = funk.handle_errors(f)
+        ensure(handled).called_with(TypeError()).is_a(TypeError)
+        ensure(side_effect.called).is_false()

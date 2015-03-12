@@ -13,6 +13,31 @@ import textwrap
 class SENTINEL(object): pass
 
 
+def handle_errors(func):
+    """Decorator to handle errors in input or wrapped function execution.
+
+    Implements railway-oriented "two track" programming, where pipelined or
+    composed functions can handle errors from upstream. Exceptions that are
+    raised inside the handler are passed downstream.
+
+    Based on Scott Wlaschin's presentation, [Railway Oriented
+    Programming--error handling in functional
+    languages](https://vimeo.com/97344498).
+
+    """
+    @wraps(func)
+    def wrapper(arg, **kwargs):
+        if is_exception(arg):
+            return arg
+        else:
+            try:
+                return func(arg, **kwargs)
+            except Exception as e:
+                return e
+
+    return wrapper
+
+
 def debugger(*args, **kwargs):
     """Drop into the debugger.
 
