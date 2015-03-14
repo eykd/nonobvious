@@ -8,24 +8,21 @@ import operator as op
 import functools
 
 from ensure import ensure
-from mock import Mock, patch
+from mock import Mock, MagicMock, patch
 from nose.plugins.attrib import attr
 
 from nonobvious import funk
 
 
+def f(*args):
+    return args
+
+
+def double(x):
+    return x * 2
+
+
 class FunkTests(unittest.TestCase):
-    def setUp(self):
-        def f(*args):
-            return args
-
-        self.f = f
-
-        def double(x):
-            return x * 2
-
-        self.double = double
-
     def test_debugger_should_start_ipdb_debugger(self):
         fake_ipdb = Mock()
 
@@ -91,15 +88,15 @@ class FunkTests(unittest.TestCase):
         ensure(funk.get_positional_arg_count).called_with(op.add).equals(None)
 
     def test_reverse_args_should_reverse_args_arguments(self):
-        reversed_args = funk.reverse_args(self.f)
+        reversed_args = funk.reverse_args(f)
 
         ensure(reversed_args).called_with(1, 2, 3).equals((3, 2, 1))
 
     def test_partial_should_create_a_partially_applied_function(self):
-        curried = funk.partial(self.f)
+        curried = funk.partial(f)
         ensure(curried).called_with(1, 2, 3).equals((1, 2, 3))
 
-        curried = funk.partial(self.f, 1)
+        curried = funk.partial(f, 1)
         ensure(curried).called_with(2, 3).equals((1, 2, 3))
 
     def test_compose_should_create_nested_functional_calls(self):
@@ -114,7 +111,7 @@ class FunkTests(unittest.TestCase):
         ensure(fc).called_with(2).equals('22')
 
     def test_curry_should_create_a_self_partialing_function(self):
-        curried = funk.curry(self.f)
+        curried = funk.curry(f)
         curried1 = curried(1, 2, 3)
         ensure(curried1).called_with().equals((1, 2, 3))
         curried2 = curried(1, 2)
@@ -135,8 +132,8 @@ class FunkTests(unittest.TestCase):
 
     def test_doc_should_overwrite_a_functions_documentation(self):
         new_docs = "The new docs!"
-        funk.doc(new_docs, self.f)
-        ensure(self.f.__doc__).equals(new_docs)
+        funk.doc(new_docs, f)
+        ensure(f.__doc__).equals(new_docs)
 
     def test_wrap_should_simply_wrap_the_function_call(self):
         f = funk.wrap(op.add)
@@ -257,22 +254,22 @@ class FunkTests(unittest.TestCase):
             if value is not None:
                 return func(value)
 
-        ensure(maybe(self.double)(2)).equals(4)
-        ensure(maybe(self.double)(None)).is_none()
+        ensure(maybe(double)(2)).equals(4)
+        ensure(maybe(double)(None)).is_none()
 
     def test_provided_should_guard_a_function(self):
         maybe = funk.provided(lambda x: x is not None)
 
-        ensure(maybe(self.double)(2)).equals(4)
-        ensure(maybe(self.double)(None)).is_none()
+        ensure(maybe(double)(2)).equals(4)
+        ensure(maybe(double)(None)).is_none()
 
     def test_map_should_map_a_function_to_a_sequence(self):
         sequence = [1, 2, 3]
-        ensure(list(funk.map(self.double, sequence))).equals([2, 4, 6])
+        ensure(list(funk.map(double, sequence))).equals([2, 4, 6])
 
     def test_map_on_should_map_a_function_to_a_sequence(self):
         sequence = [1, 2, 3]
-        ensure(list(funk.map_on(sequence, self.double))).equals([2, 4, 6])
+        ensure(list(funk.map_on(sequence, double))).equals([2, 4, 6])
 
     def test_reduce_should_reduce_a_sequence_using_a_function(self):
         sequence = [1, 2, 3]
