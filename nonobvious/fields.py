@@ -5,8 +5,9 @@ from concon import frozenlist
 from concon import ConstraintError
 import valideer as V
 
-__all__ = ['Boolean', 'Embedded', 'Date', 'DateTime', 'Field', 'Integer', 'IntegerList',
-           'NIL', 'String', 'StringList', 'TimeZoneAwareField', 'Time']
+__all__ = ['Boolean', 'Embedded', 'Date', 'DateTime', 'Field', 'Integer',
+           'IntegerList', 'NIL', 'String', 'StringList', 'TimeZoneAwareField',
+           'Time']
 
 
 class NIL: pass
@@ -30,7 +31,11 @@ class Field(object):
             else:
                 self.validator = V.AllOf(self.validator, validator)
 
-    def __init__(self, key=None, required=False, default=NIL, validator=None, choices=None):
+    def __init__(
+            self,
+            key=None, required=False, default=NIL,
+            validator=None, choices=None
+    ):
         super(Field, self).__init__()
         self.key = key
         self.required = required

@@ -19,8 +19,8 @@ class EntityMeta(type):
         if not hasattr(new_class, 'entities'):
             # This branch only executes when processing the base class itself.
             # So, since this is a new base class, not an implementation, this
-            # class shouldn't be registered as an implementation. Instead, it sets up a
-            # dict where implementations can be registered later.
+            # class shouldn't be registered as an implementation. Instead, it
+            # sets up a dict where implementations can be registered later.
             new_class.entities = {}
             for name, value in attrs.items():
                 setattr(new_class, name, value)
@@ -73,4 +73,7 @@ class Entity(frozendict):
         return self.__class__(self, *args, **kwargs)
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__, super(Entity, self).__repr__())
+        return "{}({})".format(
+            self.__class__.__name__,
+            super(Entity, self).__repr__()
+        )
