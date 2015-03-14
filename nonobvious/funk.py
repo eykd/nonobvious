@@ -335,6 +335,10 @@ map_on = named(
 
 map = curry(map)
 
+
+filter = curry(filter)
+
+
 _reduce = __builtins__['reduce']
 
 
@@ -685,3 +689,14 @@ xor_by = curry(
         reverse_args(op.xor),
         """xor_by(a, b) -> b ^ a
         """), 2)
+
+
+def switch(predicate_action_pairs):
+    """Return a function which picks a function based on the result of a predicate.
+    """
+    def on_switch(*args, **kwargs):
+        for predicate, action in predicate_action_pairs:
+            if predicate(*args, **kwargs):
+                return action(*args, **kwargs)
+
+    return on_switch
