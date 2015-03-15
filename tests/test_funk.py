@@ -8,7 +8,7 @@ import operator as op
 import functools
 
 from ensure import ensure
-from mock import Mock, MagicMock, patch
+from mock import Mock, patch
 from nose.plugins.attrib import attr
 
 from nonobvious import funk
@@ -311,3 +311,12 @@ class FunkTests(unittest.TestCase):
         handled = funk.handle_errors(f)
         ensure(handled).called_with(TypeError()).is_a(TypeError)
         ensure(side_effect.called).is_false()
+
+    def test_switch_should_pick_a_function_based_on_a_predicate(self):
+        switch = funk.switch([
+            (funk.is_an(int), lambda x: x ** 2),
+            (funk.is_a(str), lambda x: x + x)
+        ])
+
+        ensure(switch).called_with(4).equals(16)
+        ensure(switch).called_with('foo').equals('foofoo')
