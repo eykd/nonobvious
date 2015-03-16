@@ -15,9 +15,10 @@ class GolessScheduler(object):
 
     Goless documentation: https://goless.readthedocs.org
     """
-    def __init__(self):
+    def __init__(self, message_bus):
         import goless
         self._goless = goless
+        self.message_bus = message_bus
         self.reset()
 
     def reset(self):
@@ -25,11 +26,8 @@ class GolessScheduler(object):
 
         Please be sure the scheduler has stopped before resetting it!
         """
-        self._topic_channels_out = defaultdict(self._goless.chan)
-        self._topic_channels_in = defaultdict(self._goless.chan)
-
-        self._topic_node_id_receivers = defaultdict(lambda: defaultdict(self._goless.chan))
-        self._topic_node_id_senders = defaultdict(lambda: defaultdict(self._goless.chan))
+        self._topic_node_id_receivers = defaultdict(lambda: defaultdict(self._make_channel))
+        self._topic_node_id_senders = defaultdict(lambda: defaultdict(self._make_channel))
 
         self._stop_channel = self._goless.chan()
         self._scheduler_should_run = True
@@ -60,6 +58,9 @@ class GolessScheduler(object):
 
         return node_id
 
+    def _make_channel(self):
+        return self._goless.chan(-1)
+
     def _get_node_id(self):
         """Return a unique hexadecimal ID.
 
@@ -69,7 +70,7 @@ class GolessScheduler(object):
         """
         return uuid.uuid1().get_hex() + uuid.uuid4().get_hex()
 
-    def _get_topics_from_channels(self, topics, node_id):
+    def _get_channels_from_topics(self, topics, node_id):
         receive_topic, send_topic = topics
         receiving_channel = self._topic_node_id_receivers[receive_topic][node_id]
         sending_channel = self._topic_node_id_senders[send_topic][node_id]
@@ -90,7 +91,7 @@ class GolessScheduler(object):
         """Run the node, feeding messages to and from the node to its channels.
         """
         topics = node.next()
-        receiving_channel, sending_channel = self._get_topics_from_channels(topics, node_id)
+        receiving_channel, sending_channel = self._get_channels_from_topics(topics, node_id)
 
         while self._scheduler_should_run:
             try:
@@ -103,8 +104,8 @@ class GolessScheduler(object):
 
     def _get_incoming_message_stream(self):  # pragma: no cover
         while self._scheduler_should_run:
-            for topic, channel in self._topic_channels_in.iteritems():
-                yield topic, channel.recv()
+            for topic in self._topic_node_id_receivers.iterkeys():
+                yield topic, self.message_bus[topic].recv()
 
     def _receive_incoming_message(self, topic, message):
         for channel in self._topic_node_id_receivers[topic].itervalues():
@@ -115,12 +116,13 @@ class GolessScheduler(object):
             self._receive_incoming_message(topic, message)
 
     def _send_outgoing_message(self, topic, message):
-        self._topic_channels_out[topic].send(message)
+        self.message_bus[topic].send(message)
 
     def _get_outgoing_message_stream(self):  # pragma: no cover
         while self._scheduler_should_run:
-            for topic, channel in self._topic_channels_out.iteritems():
-                yield topic, channel.recv()
+            for topic, senders in self._topic_node_id_senders.iteritems():
+                for channel in senders.itervalues():
+                    yield topic, channel.recv()
 
     def _listen_for_outgoing_messages(self, topics_messages):
         for topic, message in topics_messages:

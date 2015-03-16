@@ -4,7 +4,7 @@
 from unittest import TestCase
 
 from ensure import ensure
-from mock import Mock, patch, call
+from mock import Mock, MagicMock, patch, call
 
 from nonobvious import schedulers
 from nonobvious import nodes
@@ -21,6 +21,7 @@ class Scheduler(TestCase):
         self.node_id = 'foo'
         self.topics = nodes.Topics(self.receive_topic, self.send_topic)
         self.adder = nodes.node(self.topics, f.add(2))
+        self.bus = MagicMock()
 
         mock_goless = self.mock_goless = Mock()
 
@@ -33,7 +34,7 @@ class Scheduler(TestCase):
                 return orig_import(mod, *args)
 
         with patch('__builtin__.__import__', mock_goless_import):
-            self.scheduler = schedulers.GolessScheduler()
+            self.scheduler = schedulers.GolessScheduler(self.bus)
             self.scheduler._get_node_id = Mock(return_value=self.node_id)
 
     def test_it_schedules_a_node(self):
@@ -61,13 +62,13 @@ class Scheduler(TestCase):
         self.scheduler._stop_channel.send.assert_called_once_with(None)
 
     def test_it_should_generate_hex_ids_from_uuid1_and_uuid4_uuids(self):
-        scheduler = schedulers.GolessScheduler()
+        scheduler = schedulers.GolessScheduler(MagicMock())
         ensure(scheduler._get_node_id).called_with().is_a(str)
         ensure(scheduler._get_node_id).called_with().has_length(64)
 
     def test_it_should_retrieve_topical_channels_for_topics_with_a_node_id(self):
         receiving_channel, sending_channel = (
-            self.scheduler._get_topics_from_channels(self.topics, self.node_id)
+            self.scheduler._get_channels_from_topics(self.topics, self.node_id)
         )
 
         ensure(
@@ -109,8 +110,8 @@ class Scheduler(TestCase):
 
     def test_it_should_send_an_outgoing_message(self):
         self.scheduler._send_outgoing_message(self.send_topic, 'foo')
-        self.scheduler._topic_channels_out[self.send_topic].send.assert_called_once_with('foo')
+        self.bus[self.send_topic].send.assert_called_once_with('foo')
 
     def test_it_should_listen_for_outgoing_messages(self):
         self.scheduler._listen_for_outgoing_messages([(self.send_topic, 'foo')])
-        self.scheduler._topic_channels_out[self.send_topic].send.assert_called_once_with('foo')
+        self.bus[self.send_topic].send.assert_called_once_with('foo')
