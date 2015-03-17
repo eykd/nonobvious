@@ -8,7 +8,7 @@ import operator as op
 import functools
 
 from ensure import ensure
-from mock import Mock, patch
+from mock import Mock, patch, call
 from nose.plugins.attrib import attr
 
 from nonobvious import funk
@@ -20,6 +20,36 @@ def f(*args):
 
 def double(x):
     return x * 2
+
+
+class abs_Tests(unittest.TestCase):
+    def test_should_return_the_absolute_value_of(self):
+        for name in ('absolute_value_of', 'abs'):
+            abs = getattr(funk, name)
+            ensure(abs).called_with(-5).equals(5)
+            ensure(abs).called_with(5).equals(5)
+
+
+class add_Tests(unittest.TestCase):
+    def test_add_should_add_numbers(self):
+        for name in ('add', 'add_by'):
+            add = getattr(funk, name)
+            ensure(add).called_with(5, 5).equals(10)
+
+
+class and__Tests(unittest.TestCase):
+    def test_and__should_(self):
+        for name in ('and_', ):
+            and_ = getattr(funk, name)
+            ensure(and_).called_with(5, 10).equals(5 & 10)
+
+
+class and_by_Tests(unittest.TestCase):
+    def test_and_by_should_(self):
+        for name in ('and_by', ):
+            and_by = getattr(funk, name)
+            ensure(and_by).called_with(5, 10).equals(10 & 5)
+
 
 
 class append_to_doc_Tests(unittest.TestCase):
@@ -87,6 +117,50 @@ class compose_Tests(unittest.TestCase):
 
         fc = funk.compose(str, funk.add(2), funk.mul_by(2))
         ensure(fc).called_with(2).equals('6')
+
+
+class concat_Tests(unittest.TestCase):
+    def test_concat_should_(self):
+        for name in ('concat', ):
+            concat = getattr(funk, name)
+            ensure(concat).called_with([5], [6]).equals([5, 6])
+
+
+class concat_by_Tests(unittest.TestCase):
+    def test_concat_by_should_(self):
+        for name in ('concat_by', ):
+            concat_by = getattr(funk, name)
+            ensure(concat_by).called_with([5], [10]).equals([10, 5])
+
+
+class contains_Tests(unittest.TestCase):
+    def test_contains_should_(self):
+        for name in ('contains', ):
+            contains = getattr(funk, name)
+            ensure(contains).called_with(5, [10, 5]).is_true()
+            ensure(contains).called_with(4, [10, 5]).is_false()
+
+
+class contained_by_Tests(unittest.TestCase):
+    def test_contained_by_should_(self):
+        for name in ('contained_by', ):
+            contained_by = getattr(funk, name)
+            ensure(contained_by).called_with([10, 5], 5).is_true()
+            ensure(contained_by).called_with([10, 5], 6).is_false()
+
+
+class count_of_Tests(unittest.TestCase):
+    def test_count_of_should_(self):
+        for name in ('count_of', 'count'):
+            count_of = getattr(funk, name)
+            ensure(count_of).called_with('o', 'foo').equals(2)
+
+
+class count_in_Tests(unittest.TestCase):
+    def test_count_in_should_(self):
+        for name in ('count_in', ):
+            count_in = getattr(funk, name)
+            ensure(count_in).called_with('foo', 'o').equals(2)
 
 
 class curry_Tests(unittest.TestCase):
@@ -176,11 +250,57 @@ class delete_slice_Tests(unittest.TestCase):
         ensure(funk.delete_slice(slice(1, 2), foo)[-1]).is_not(foo[-1])
 
 
+class divide_Tests(unittest.TestCase):
+    def test_divide_should_(self):
+        for name in ('divide', 'div'):
+            divide = getattr(funk, name)
+            ensure(divide).called_with(10, 5).equals(10 / 5)
+
+
+class divide_by_Tests(unittest.TestCase):
+    def test_divide_by_should_(self):
+        for name in ('divide_by', 'div_by'):
+            divide_by = getattr(funk, name)
+            ensure(divide_by).called_with(5, 10).equals(10 / 5)
+
+
 class doc_Tests(unittest.TestCase):
     def test_doc_should_overwrite_a_functions_documentation(self):
         new_docs = "The new docs!"
         funk.doc(new_docs, f)
         ensure(f.__doc__).equals(new_docs)
+
+
+class equal_Tests(unittest.TestCase):
+    def test_equal_should_(self):
+        for name in ('equal', 'eq'):
+            equal = getattr(funk, name)
+            ensure(equal).called_with(5, 5).is_true()
+
+
+class each_Tests(unittest.TestCase):
+    def test_should_call_func_on_each_member_of_iterable(self):
+        caller = Mock()
+        funk.each(caller, [1, 2, 3])
+        caller.assert_calls([
+            call(1),
+            call(2),
+            call(3),
+        ])
+
+
+class floor_divide_Tests(unittest.TestCase):
+    def test_floor_divide_should_(self):
+        for name in ('floor_divide', 'floordiv'):
+            floor_divide = getattr(funk, name)
+            ensure(floor_divide).called_with(11, 5).equals(11 // 5)
+
+
+class floor_divide_by_Tests(unittest.TestCase):
+    def test_floor_divide_by_should_(self):
+        for name in ('floor_divide_by', ):
+            floor_divide_by = getattr(funk, name)
+            ensure(floor_divide_by).called_with(5, 11).equals(11 // 5)
 
 
 class fluent_Tests(unittest.TestCase):
@@ -244,6 +364,24 @@ class get_positional_arg_count_Tests(unittest.TestCase):
         ensure(funk.get_positional_arg_count).called_with(op.add).equals(None)
 
 
+class greater_than_or_equal_to_Tests(unittest.TestCase):
+    def test_greater_than_or_equal_to_should_(self):
+        for name in ('greater_than_or_equal_to', 'ge'):
+            greater_than_or_equal_to = getattr(funk, name)
+            ensure(greater_than_or_equal_to).called_with(5, 5).equals(5 >= 5)
+            ensure(greater_than_or_equal_to).called_with(5, 10).equals(10 >= 5)
+            ensure(greater_than_or_equal_to).called_with(5, 4).equals(4 >= 5)
+
+
+class greater_than_Tests(unittest.TestCase):
+    def test_greater_than_should_(self):
+        for name in ('greater_than', 'gt'):
+            greater_than = getattr(funk, name)
+            ensure(greater_than).called_with(5, 5).equals(5 > 5)
+            ensure(greater_than).called_with(5, 6).equals(6 > 5)
+            ensure(greater_than).called_with(6, 5).equals(5 > 6)
+
+
 class handle_errors_Tests(unittest.TestCase):
     def test_should_capture_exceptions(self):
         def f(arg):
@@ -268,13 +406,92 @@ class handle_errors_Tests(unittest.TestCase):
         ensure(side_effect.called).is_false()
 
 
+class is__Tests(unittest.TestCase):
+    def test_is__should_(self):
+        for name in ('is_', ):
+            is_ = getattr(funk, name)
+            ensure(is_).called_with(f, f).is_true()
+
+
 class is_a_Tests(unittest.TestCase):
     def test_should_test_for_type(self):
-        ensure(funk.is_a).called_with(float, 5.0).is_true()
-        ensure(funk.is_a).called_with(float, 5).is_false()
+        for name in ('is_a', 'is_an'):
+            is_a = getattr(funk, name)
+            ensure(is_a).called_with(float, 5.0).is_true()
+            ensure(is_a).called_with(float, 5).is_false()
 
-        ensure(funk.is_an).called_with(int, 5).is_true()
-        ensure(funk.is_an).called_with(int, 5.0).is_false()
+
+class is_callable_Tests(unittest.TestCase):
+    def test_is_callable_should_(self):
+        for name in ('is_callable', ):
+            is_callable = getattr(funk, name)
+            ensure(is_callable).called_with(Mock()).is_true()
+            ensure(is_callable).called_with(None).is_false()
+
+
+class is_mapping_Tests(unittest.TestCase):
+    def test_is_mapping_should_(self):
+        for name in ('is_mapping', ):
+            is_mapping = getattr(funk, name)
+            ensure(is_mapping).called_with({}).is_true()
+            ensure(is_mapping).called_with([]).is_false()
+
+
+class is_not_Tests(unittest.TestCase):
+    def test_is_not_should_(self):
+        for name in ('is_not', ):
+            is_not = getattr(funk, name)
+            ensure(is_not).called_with(f, double).is_true()
+
+
+class is_number_Tests(unittest.TestCase):
+    def test_is_number_should_(self):
+        for name in ('is_number', ):
+            is_number = getattr(funk, name)
+            ensure(is_number).called_with(5).is_true()
+            ensure(is_number).called_with(5.0).is_true()
+            ensure(is_number).called_with('5').is_false()
+
+
+class is_sequence_Tests(unittest.TestCase):
+    def test_is_sequence_should_(self):
+        for name in ('is_sequence', ):
+            is_sequence = getattr(funk, name)
+            ensure(is_sequence).called_with([]).is_true()
+            ensure(is_sequence).called_with({}).is_false()
+            ensure(is_sequence).called_with(None).is_false()
+
+
+class less_than_Tests(unittest.TestCase):
+    def test_less_than_should_(self):
+        for name in ('less_than', 'lt'):
+            less_than = getattr(funk, name)
+            ensure(less_than).called_with(5, 5).equals(5 < 5)
+            ensure(less_than).called_with(5, 10).equals(10 < 5)
+            ensure(less_than).called_with(10, 5).equals(5 < 10)
+
+
+class less_than_or_equal_to_Tests(unittest.TestCase):
+    def test_less_than_or_equal_to_should_(self):
+        for name in ('less_than_or_equal_to', 'le'):
+            less_than_or_equal_to = getattr(funk, name)
+            ensure(less_than_or_equal_to).called_with(5, 5).equals(5 <= 5)
+            ensure(less_than_or_equal_to).called_with(10, 5).equals(5 <= 10)
+            ensure(less_than_or_equal_to).called_with(5, 10).equals(10 <= 5)
+
+
+class lshift_Tests(unittest.TestCase):
+    def test_lshift_should_(self):
+        for name in ('left_shift', 'lshift'):
+            lshift = getattr(funk, name)
+            ensure(lshift).called_with(5, 10).equals(5 << 10)
+
+
+class lshift_by_Tests(unittest.TestCase):
+    def test_lshift_by_should_(self):
+        for name in ('left_shift_by', 'lshift_by'):
+            lshift_by = getattr(funk, name)
+            ensure(lshift_by).called_with(5, 10).equals(10 << 5)
 
 
 class map_Tests(unittest.TestCase):
@@ -287,6 +504,83 @@ class map_on_Tests(unittest.TestCase):
     def test_should_map_a_function_to_a_sequence(self):
         sequence = [1, 2, 3]
         ensure(list(funk.map_on(sequence, double))).equals([2, 4, 6])
+
+
+class method_caller_Tests(unittest.TestCase):
+    def test_method_caller_should_(self):
+        for name in ('method_caller', ):
+            method_caller = getattr(funk, name)
+            mocked = Mock()
+            method_caller('foo')(mocked)
+            mocked.foo.assert_called_once_with()
+
+            method_caller('bar', 1, 2, three='four')(mocked)
+            mocked.bar.assert_called_once_with(1, 2, three='four')
+
+
+class mod_Tests(unittest.TestCase):
+    def test_mod_should_(self):
+        for name in ('modulus', 'mod'):
+            mod = getattr(funk, name)
+            ensure(mod).called_with(11, 5).equals(11 % 5)
+
+
+class modulus_by_Tests(unittest.TestCase):
+    def test_modulus_by_should_(self):
+        for name in ('modulus_by', 'mod_by'):
+            modulus_by = getattr(funk, name)
+            ensure(modulus_by).called_with(5, 11).equals(11 % 5)
+
+
+class multiply_Tests(unittest.TestCase):
+    def test_multiply_should_(self):
+        for name in ('multiply', 'mul'):
+            multiply = getattr(funk, name)
+            ensure(multiply).called_with(10, 5).equals(10 * 5)
+
+
+class multiply_by_Tests(unittest.TestCase):
+    def test_multiply_by_should_(self):
+        for name in ('multiply_by', 'mul_by'):
+            multiply_by = getattr(funk, name)
+            ensure(multiply_by).called_with(5, 10).equals(10 * 5)
+
+
+class negative_Tests(unittest.TestCase):
+    def test_negative_should_(self):
+        for name in ('negative', 'neg'):
+            negative = getattr(funk, name)
+            ensure(negative).called_with(5).equals(-5)
+
+
+class not__Tests(unittest.TestCase):
+    def test_not__should_(self):
+        for name in ('not_', ):
+            not_ = getattr(funk, name)
+            ensure(not_).called_with(True).is_false()
+            ensure(not_).called_with(False).is_true()
+
+
+class not_equal_Tests(unittest.TestCase):
+    def test_not_equal_should_(self):
+        for name in ('not_equal', ):
+            not_equal = getattr(funk, name)
+            ensure(not_equal).called_with(5, 5).is_false()
+            ensure(not_equal).called_with(10, 5).is_true()
+
+
+class or__Tests(unittest.TestCase):
+    def test_or__should_(self):
+        for name in ('or_', ):
+            or_ = getattr(funk, name)
+            ensure(or_).called_with(10, 5).equals(10 | 5)
+
+
+class or_by_Tests(unittest.TestCase):
+    def test_or_by_should_(self):
+        for name in ('or_by', ):
+            or_by = getattr(funk, name)
+            ensure(or_by).called_with(5, 10).equals(10 | 5)
 
 
 class partial_Tests(unittest.TestCase):
@@ -304,6 +598,27 @@ class pipeline_Tests(unittest.TestCase):
         ensure(fc).called_with(2).equals('22')
 
 
+class positive_Tests(unittest.TestCase):
+    def test_positive_should_(self):
+        for name in ('positive', 'pos'):
+            positive = getattr(funk, name)
+            ensure(positive).called_with(5).equals(+5)
+
+
+class power_Tests(unittest.TestCase):
+    def test_power_should_(self):
+        for name in ('power', 'pow'):
+            power = getattr(funk, name)
+            ensure(power).called_with(5, 2).equals(5 ** 2)
+
+
+class to_the_power_of_Tests(unittest.TestCase):
+    def test_to_the_power_of_should_(self):
+        for name in ('to_the_power_of', 'pow_of'):
+            to_the_power_of = getattr(funk, name)
+            ensure(to_the_power_of).called_with(2, 5).equals(5 ** 2)
+
+
 class provided_Tests(unittest.TestCase):
     def test_should_guard_a_function(self):
         maybe = funk.provided(lambda x: x is not None)
@@ -319,6 +634,11 @@ class reduce_Tests(unittest.TestCase):
         ensure(funk.reduce).called_with(funk.add, sequence, 6).equals(12)
         ensure(funk.reduce).called_with(funk.add, sequence, initial=6).equals(12)
 
+        sequence = [[0, 1], [2, 3], [4, 5]]
+        ensure(funk.reduce).called_with(
+            funk.concat, sequence, initial=[]
+        ).equals([0, 1, 2, 3, 4, 5])
+
 
 class reduce_on_Tests(unittest.TestCase):
     def test_should_reduce_a_sequence_using_a_function(self):
@@ -326,6 +646,37 @@ class reduce_on_Tests(unittest.TestCase):
         ensure(funk.reduce_on).called_with(sequence, funk.add).equals(6)
         ensure(funk.reduce_on).called_with(sequence, funk.add, 6).equals(12)
         ensure(funk.reduce_on).called_with(sequence, funk.add, initial=6).equals(12)
+
+        sequence = [[0, 1], [2, 3], [4, 5]]
+        ensure(funk.reduce_on).called_with(
+            sequence, funk.concat, initial=[]
+        ).equals([0, 1, 2, 3, 4, 5])
+
+
+class reduce_right_Tests(unittest.TestCase):
+    def test_should_right_associatively_reduce_a_sequence_using_a_function(self):
+        sequence = [1, 2, 3]
+        ensure(funk.reduce_right).called_with(funk.add, sequence).equals(6)
+        ensure(funk.reduce_right).called_with(funk.add, sequence, 6).equals(12)
+        ensure(funk.reduce_right).called_with(funk.add, sequence, initial=6).equals(12)
+
+        sequence = [[0, 1], [2, 3], [4, 5]]
+        ensure(funk.reduce_right).called_with(
+            funk.concat, sequence, initial=[]
+        ).equals([4, 5, 2, 3, 0, 1])
+
+
+class reduce_right_on_Tests(unittest.TestCase):
+    def test_should_right_associatively_reduce_a_sequence_using_a_function(self):
+        sequence = [1, 2, 3]
+        ensure(funk.reduce_right_on).called_with(sequence, funk.add).equals(6)
+        ensure(funk.reduce_right_on).called_with(sequence, funk.add, 6).equals(12)
+        ensure(funk.reduce_right_on).called_with(sequence, funk.add, initial=6).equals(12)
+
+        sequence = [[0, 1], [2, 3], [4, 5]]
+        ensure(funk.reduce_right_on).called_with(
+            sequence, funk.concat, initial=[]
+        ).equals([4, 5, 2, 3, 0, 1])
 
 
 class reverse_args_Tests(unittest.TestCase):
