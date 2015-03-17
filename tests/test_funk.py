@@ -679,11 +679,53 @@ class reduce_right_on_Tests(unittest.TestCase):
         ).equals([4, 5, 2, 3, 0, 1])
 
 
+class repeat_Tests(unittest.TestCase):
+    def test_repeat_should_(self):
+        for name in ('repeat', ):
+            repeat = getattr(funk, name)
+            ensure(repeat).called_with([1], 5).equals([1, 1, 1, 1, 1])
+
+
+class repeat_by_Tests(unittest.TestCase):
+    def test_repeat_by_should_(self):
+        for name in ('repeat_by', ):
+            repeat_by = getattr(funk, name)
+            ensure(repeat_by).called_with(5, [1]).equals([1, 1, 1, 1, 1])
+
+
 class reverse_args_Tests(unittest.TestCase):
     def test_should_reverse_arguments(self):
         reversed_args = funk.reverse_args(f)
 
         ensure(reversed_args).called_with(1, 2, 3).equals((3, 2, 1))
+
+
+class right_shift_Tests(unittest.TestCase):
+    def test_right_shift_should_(self):
+        for name in ('right_shift', 'rshift'):
+            right_shift = getattr(funk, name)
+            ensure(right_shift).called_with(10, 5).equals(10 >> 5)
+
+
+class right_shift_by_Tests(unittest.TestCase):
+    def test_right_shift_by_should_(self):
+        for name in ('right_shift_by', 'rshift_by'):
+            right_shift_by = getattr(funk, name)
+            ensure(right_shift_by).called_with(10, 5).equals(5 >> 10)
+
+
+class subtract_Tests(unittest.TestCase):
+    def test_subtract_should_(self):
+        for name in ('subtract', 'sub'):
+            subtract = getattr(funk, name)
+            ensure(subtract).called_with(10, 5).equals(10 - 5)
+
+
+class subtract_by_Tests(unittest.TestCase):
+    def test_subtract_by_should_(self):
+        for name in ('subtract_by', 'sub_by'):
+            subtract_by = getattr(funk, name)
+            ensure(subtract_by).called_with(10, 5).equals(5 - 10)
 
 
 class set_item_on_Tests(unittest.TestCase):
@@ -727,7 +769,43 @@ class switch_Tests(unittest.TestCase):
         ensure(switch).called_with('foo').equals('foofoo')
 
 
+class truly_divide_Tests(unittest.TestCase):
+    def test_truly_divide_should_(self):
+        for name in ('truly_divide', 'truediv'):
+            truly_divide = getattr(funk, name)
+            ensure(truly_divide).called_with(11, 5).equals(2.2)
+
+
+class truly_divide_by_Tests(unittest.TestCase):
+    def test_truly_divide_by_should_(self):
+        for name in ('truly_divide_by', 'truediv_by'):
+            truly_divide_by = getattr(funk, name)
+            ensure(truly_divide_by).called_with(5, 11).equals(2.2)
+
+
+class truly_Tests(unittest.TestCase):
+    def test_truly_should_(self):
+        for name in ('truly', 'truth'):
+            truly = getattr(funk, name)
+            ensure(truly).called_with(1).is_true()
+            ensure(truly).called_with(0).is_false()
+
+
 class wrap_Tests(unittest.TestCase):
     def test_wrap_should_simply_wrap_the_function_call(self):
         f = funk.wrap(op.add)
         ensure(f).called_with(2, 2).equals(4)
+
+
+class xor_Tests(unittest.TestCase):
+    def test_xor_should_(self):
+        for name in ('xor', 'exclusive_or'):
+            xor = getattr(funk, name)
+            ensure(xor).called_with(10, 5).equals(10 ^ 5)
+
+
+class xor_by_Tests(unittest.TestCase):
+    def test_xor_by_should_(self):
+        for name in ('xor_by', 'exclusive_or_by'):
+            xor_by = getattr(funk, name)
+            ensure(xor_by).called_with(10, 5).equals(5 ^ 10)

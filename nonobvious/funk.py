@@ -918,41 +918,130 @@ to_the_power_of = curry(
 
 pow_of = to_the_power_of
 
+repeat = curry(
+    doc_on(
+        wrap(op.repeat),
+        """repeat(sequence, integer) -> sequence * integer
+
+        Equivalent: repeat_by(integer, sequence)
+        """), 2)
+
 repeat_by = curry(
     doc_on(
         reverse_args(op.repeat),
-        """repeat_by(a, b) -> b * a
+        """repeat_by(integer, sequence) -> sequence * integer
 
-        Return b * a, where a is an integer and b is a sequence.
+        Equivalent: repeat(sequence, integer)
         """), 2)
 
-rshift_by = curry(
+
+right_shift = curry(
+    doc_on(
+        wrap(op.rshift),
+        """right_shift(a, b) -> a >> b
+
+        Also: rshift(a, b)
+        Equivalent: right_shift_by(b, a)
+        """), 2)
+
+
+rshift = right_shift
+
+
+right_shift_by = curry(
     doc_on(
         reverse_args(op.rshift),
-        """rshift(a, b) -> b >> a
+        """right_shift(a, b) -> b >> a
+
+        Also: rshift_by(a, b)
+        Equivalent: right_shift(b, a)
         """), 2)
 
-sub_by = curry(
+
+rshift_by = right_shift_by
+
+
+subtract = curry(
+    doc_on(
+        wrap(op.sub),
+        """subtract(a, b) -> a - b
+
+        Also: sub(a, b)
+        Equivalent: subtract_by(b, a)
+        """), 2)
+
+sub = subtract
+
+subtract_by = curry(
     doc_on(
         reverse_args(op.sub),
-        """sub_by(a, b) -> b - a
+        """subtract_by(a, b) -> b - a
+
+        Also: sub_by(a, b)
+        Equivalent: subtract(b, a)
         """), 2)
 
-truediv_by = curry(
+sub_by = subtract_by
+
+
+truly_divide = curry(
     doc_on(
-        reverse_args(op.truediv),
-        """truediv_by(a, b) -> b / a
+        wrap(op.truediv),
+        """truly_divide(a, b) -> a / b
 
         Same as a / b when __future__.division is in effect.
+
+        Also: truediv(a, b)
+        Equivalent: truly_divide_by(b, a)
         """), 2)
 
-truth = op.truth
+
+truediv = truly_divide
+
+
+truly_divide_by = curry(
+    doc_on(
+        reverse_args(op.truediv),
+        """truly_divide_by(a, b) -> b / a
+
+        Same as b / a when __future__.division is in effect.
+        """), 2)
+
+truediv_by = truly_divide_by
+
+
+truly = doc_on(
+    wrap(op.truth),
+    """truly(a) -> True if a else False
+
+    Also: truth(a)
+    """
+)
+
+truth = truly
+
+
+xor = curry(
+    doc_on(
+        wrap(op.xor),
+        """xor(a, b) -> a ^ b
+
+        Also: exclusive_or(a, b)
+        Equivalent: xor_by(b, a)
+        """), 2)
+
+exclusive_or = xor
 
 xor_by = curry(
     doc_on(
         reverse_args(op.xor),
         """xor_by(a, b) -> b ^ a
+
+        Also: exclusive_or_by(a, b)
+        Equivalent: xor(b, a)
         """), 2)
+
+exclusive_or_by = xor_by
 
 
 def switch(predicate_action_pairs):
