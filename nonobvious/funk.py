@@ -94,7 +94,7 @@ def curry(func, expected_arg_count=None):
     For non-Python functions, the expected number of args can be passed, e.g.:
 
     >>> import operator
-    >>> curry(2, operator.add)
+    >>> curry(operator.add, 2)
 
     """
     if expected_arg_count is None:
