@@ -319,8 +319,13 @@ def map(function, sequence):
     For each item in the given sequence, provide the item to the callable as
     the sole argument, and return the resulting value in the resulting mapped
     sequence.
+
+    Also: collect(callable, seque)
     """
     return itertools.imap(function, sequence)
+
+
+collect = map
 
 
 def each(function, sequence):
@@ -1045,7 +1050,9 @@ exclusive_or_by = xor_by
 
 
 def switch(predicate_action_pairs):
-    """Return a function which picks a function based on the result of a predicate.
+    """Return a function which picks a function based on the result of the predicate.
+
+    If no function is selected, return None.
     """
     def on_switch(*args, **kwargs):
         for predicate, action in predicate_action_pairs:
@@ -1053,3 +1060,45 @@ def switch(predicate_action_pairs):
                 return action(*args, **kwargs)
 
     return on_switch
+
+
+filter = curry(
+    doc_on(
+        wrap(itertools.ifilter),
+        """filter(predicate, iterable) -> filtered_iterable
+
+        Return the stream of items for which predicate(item) is true.
+
+        Also: select(predicate, iterable)
+        """
+    ), 2
+)
+
+select = filter
+
+
+first = doc_on(
+    compose(next, iter),
+    """first(iterable) -> first_item_of_iterable
+
+    Return the first item of the iterable.
+
+    Also: head(iterable); take(iterable)
+    """
+)
+
+head = first
+take = first
+
+
+find = curry(
+    doc_on(
+        compose(first, filter),
+        """find(predicate, iterable) -> first_item_found
+
+        Return the first item for which predicate(item) is true.
+        """
+    ), 2)
+
+
+detect = find

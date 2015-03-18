@@ -289,6 +289,42 @@ class each_Tests(unittest.TestCase):
         ])
 
 
+class filter_Tests(unittest.TestCase):
+    def test_filter_should_(self):
+        for name in ('filter', 'select'):
+            filter = getattr(funk, name)
+            ensure(
+                list(
+                    filter(
+                        funk.greater_than(3),
+                        [1, 2, 3, 4, 5, 6]))
+            ).equals([4, 5, 6])
+
+
+class find_Tests(unittest.TestCase):
+    def test_find_should_(self):
+        for name in ('find', 'detect'):
+            find = getattr(funk, name)
+            ensure(find).called_with(
+                funk.greater_than(3),
+                [1, 2, 3, 4, 5, 6]
+            ).equals(4)
+
+
+class first_Tests(unittest.TestCase):
+    def test_first_should_(self):
+        for name in ('first', 'head', 'take'):
+            first = getattr(funk, name)
+            ensure(first).called_with([1, 2, 3]).equals(1)
+
+            def f():
+                yield 1
+                yield 2
+                yield 3
+
+            ensure(first).called_with(f()).equals(1)
+
+
 class floor_divide_Tests(unittest.TestCase):
     def test_floor_divide_should_(self):
         for name in ('floor_divide', 'floordiv'):
@@ -496,8 +532,10 @@ class lshift_by_Tests(unittest.TestCase):
 
 class map_Tests(unittest.TestCase):
     def test_should_map_a_function_to_a_sequence(self):
-        sequence = [1, 2, 3]
-        ensure(list(funk.map(double, sequence))).equals([2, 4, 6])
+        for name in ('map', 'collect'):
+            map = getattr(funk, name)
+            sequence = [1, 2, 3]
+            ensure(list(map(double, sequence))).equals([2, 4, 6])
 
 
 class map_on_Tests(unittest.TestCase):
