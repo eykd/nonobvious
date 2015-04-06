@@ -1,2 +1,3 @@
 concon==2.0
 valideer==0.3
+goless==0.7.2
