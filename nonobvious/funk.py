@@ -94,7 +94,7 @@ def curry(func, expected_arg_count=None):
     For non-Python functions, the expected number of args can be passed, e.g.:
 
     >>> import operator
-    >>> curry(2, operator.add)
+    >>> curry(operator.add, 2)
 
     """
     if expected_arg_count is None:
@@ -319,8 +319,23 @@ def map(function, sequence):
     For each item in the given sequence, provide the item to the callable as
     the sole argument, and return the resulting value in the resulting mapped
     sequence.
+
+    Also: collect(callable, seque)
     """
     return itertools.imap(function, sequence)
+
+
+collect = map
+
+
+def each(function, sequence):
+    """each(callable, sequence) -> None
+
+    Apply the callable to each member of the sequence. Do not save the results.
+    `each` implies a function with side effects!
+    """
+    for item in sequence:
+        function(item)
 
 
 map_on = named(
@@ -367,6 +382,31 @@ def reduce_on(sequence, function, initial=SENTINEL):
     The reverse of reduce(callable, sequence)
     """
     return reduce(function, sequence, initial=initial)
+
+
+@curry
+def reduce_right(function, sequence, initial=SENTINEL):
+    """reduce_right(function, sequence[, initial]) -> reduced_value
+
+    Apply a function of two arguments cumulatively to the items of a sequence,
+    from right to left, so as to reduce the sequence to a single value.
+
+    >>> reduce(lambda x, y: x+y, [1, 2, 3, 4, 5]) == ((((5+4)+3)+2)+1)
+    True
+
+    If `initial` is present, it is placed before the items of the sequence in
+    the calculation, and serves as a default when the sequence is empty.
+
+    """
+    return reduce(function, reversed(sequence), initial=initial)
+
+
+def reduce_right_on(sequence, function, initial=SENTINEL):
+    """reduce_right_on(sequence, callable[, initial]) -> reduced_value
+
+    The reverse of reduce_right(callable, sequence)
+    """
+    return reduce_right(function, sequence, initial=initial)
 
 
 @curry
@@ -467,13 +507,41 @@ def fluent(meth):
 
 
 # Operations, funky style
-abs = op.abs
+absolute_value_of = doc_on(
+    wrap(op.abs),
+    """absolute_value_of(a) -> absolute value of a
+
+    Also: abs(a)
+    """
+)
+
+abs = absolute_value_of
+
 
 add = curry(
     doc_on(
         reverse_args(op.add),
-        """add(a, b) -> b + a
+        """add(a, b) -> a + b
+
+        Equivalent: add_by(b, a)
         """), 2)
+
+
+add_by = curry(
+    doc_on(
+        wrap(op.add),
+        """add(a, b) -> b + a
+
+        Equivalent: add(b, a)
+        """), 2)
+
+
+and_ = curry(
+    doc_on(
+        wrap(op.and_),
+        """and_(a, b) -> a & b
+        """), 2)
+
 
 and_by = curry(
     doc_on(
@@ -481,59 +549,150 @@ and_by = curry(
         """and_by(a, b) -> b & a
         """), 2)
 
-concat_by = curry(
+
+concat = curry(
     doc_on(
         wrap(op.concat),
+        """concat(a, b) -> a + b
+
+        For a and b sequences, concatenate to form a new sequence.
+
+        Equivalent: concat_by(b, a)
+        """), 2)
+
+
+concat_by = curry(
+    doc_on(
+        reverse_args(op.concat),
         """concat_by(a, b) -> b + a
 
         For a and b sequences, concatenate to form a new sequence.
+
+        Equivalent: concat(b, a)
         """), 2)
+
 
 contains = curry(
     doc_on(
         reverse_args(op.contains),
         """contains(a, b) -> a in b
+
+        Equivalent: contained_by(b, a)
         """), 2)
+
+
+contained_by = curry(
+    doc_on(
+        wrap(op.contains),
+        """contained_by(a, b) -> b in a
+
+        Equivalent: contains(b, a)
+        """), 2)
+
 
 count_of = curry(
     doc_on(
-        reverse_args(reverse_args(op.countOf)),
+        (reverse_args(op.countOf)),
         """count_of(a, b) -> int
 
         Return the number of times a occurs in b.
+
+        Equivalent: count_in(b, a)
         """), 2)
 
-div_by = curry(
+
+count = count_of
+
+
+count_in = curry(
+    doc_on(
+        wrap(op.countOf),
+        """count_in(a, b) -> int
+
+        Return the number of times b occurs in a.
+
+        Equivalent: count_of(b, a)
+        """), 2)
+
+
+divide = curry(
+    doc_on(
+        wrap(op.div),
+        """divide(a, b) -> a / b
+
+        Same as a / b when __future__.division is not in effect.
+
+        Also: div
+        Equivalent: div_by(b, a)
+        """), 2)
+
+div = divide
+
+
+divide_by = curry(
     doc_on(
         reverse_args(op.div),
-        """div_by(a, b) -> b / a
+        """divide_by(a, b) -> b / a
 
         Same as b / a when __future__.division is not in effect.
+
+        Also: div_by
+        Equivalent: div(b, a)
         """), 2)
 
-eq = curry(
+div_by = divide_by
+
+equal = curry(
     doc_on(
         wrap(op.eq),
-        """eq(a, b) -> b == a
+        """equal(a, b) -> b == a
+
+        Also: eq(a, b)
         """), 2)
 
-floordiv_by = curry(
+eq = equal
+
+floor_divide = curry(
+    doc_on(
+        wrap(op.floordiv),
+        """floor_divide(a, b) -> b // a
+
+        Also: floordiv(a, b)
+        Equivalent: floor_divide_by(b, a)
+        """), 2)
+
+floordiv = floor_divide
+
+floor_divide_by = curry(
     doc_on(
         reverse_args(op.floordiv),
         """floordiv_by(a, b) -> b // a
+
+        Also: floordiv_by(a, b)
+        Equivalent: floor_divide(b, a)
         """), 2)
 
-ge = curry(
+floordiv_by = floor_divide_by
+
+greater_than_or_equal_to = curry(
     doc_on(
         reverse_args(op.ge),
-        """ge(a, b) -> b >= a
+        """greater_than_or_equal_to(a, b) -> b >= a
+
+        Also: ge(a, b)
         """), 2)
 
-gt = curry(
+ge = greater_than_or_equal_to
+
+greater_than = curry(
     doc_on(
         reverse_args(op.gt),
-        """gt(a, b) -> b > a
+        """greater_than(a, b) -> b > a
+
+        Also: gt(a, b)
         """), 2)
+
+gt = greater_than
 
 is_callable = doc_on(
     wrap(op.isCallable),
@@ -591,23 +750,47 @@ is_not = curry(
         """is_not(a, b) -> b is not a
         """), 2)
 
-le = curry(
+less_than_or_equal_to = curry(
     doc_on(
         reverse_args(op.le),
-        """le(a, b) -- b <= a
+        """less_than_or_equal_to(a, b) -- b <= a
+
+        Also: le(a, b)
         """), 2)
 
-lshift_by = curry(
+le = less_than_or_equal_to
+
+left_shift = curry(
+    doc_on(
+        wrap(op.lshift),
+        """left_shift(a, b) -> a << b
+
+        Also: lshift(a, b)
+        Equivalent: lshift_by(b, a)
+        """), 2)
+
+lshift = left_shift
+
+left_shift_by = curry(
     doc_on(
         reverse_args(op.lshift),
-        """lshift_by(a, b) -> b << a
+        """left_shift_by(a, b) -> b << a
+
+        Also: lshift_by(a, b)
+        Equivalent: lshift(b, a)
         """), 2)
 
-lt = curry(
+lshift_by = left_shift_by
+
+less_than = curry(
     doc_on(
         reverse_args(op.lt),
-        """lt(a, b) -> b < a
+        """less_than(a, b) -> b < a
+
+        Also: lt(a, b)
         """), 2)
+
+lt = less_than
 
 method_caller = doc_on(
     wrap(op.methodcaller),
@@ -619,80 +802,257 @@ method_caller = doc_on(
     r.name('date', foo=1).
     """)
 
-mod_by = curry(
+modulus = curry(
+    doc_on(
+        wrap(op.mod),
+        """modulus(a, b) -> a % b
+
+        Also: mod(a, b)
+        Equivalent: modulus(b, a)
+        """), 2)
+
+mod = modulus
+
+modulus_by = curry(
     doc_on(
         reverse_args(op.mod),
-        """mod_by(a, b) -> b % a
+        """modulus_by(a, b) -> b % a
+
+        Also: mod_by(a, b)
+        Equivalent: modulus(b, a)
         """), 2)
 
-mul_by = curry(
+mod_by = modulus_by
+
+
+multiply = curry(
+    doc_on(
+        wrap(op.mul),
+        """multiply(a, b) -> a * b
+
+        Also: mul(a, b)
+        Equivalent: multiply_by(b, a)
+        """), 2)
+
+mul = multiply
+
+
+multiply_by = curry(
     doc_on(
         reverse_args(op.mul),
-        """mul_by(a, b) -> b * a.
+        """multiply_by(a, b) -> b * a.
+
+        Also: mul_by(a, b)
+        Equivalent: multiply(b, a)
         """), 2)
 
-ne = curry(
+mul_by = multiply_by
+
+not_equal = curry(
     doc_on(
         reverse_args(op.ne),
-        """ne(a, b) -> b != a
+        """not_equal(a, b) -> b != a
+
+        Also: ne(a, b)
         """), 2)
 
-neg = op.neg
-not_ = op.not_
+ne = not_equal
+
+negative = doc_on(
+    wrap(op.neg),
+    """negative(a) -> -a
+
+    Also: neg(a)
+    """
+)
+
+neg = negative
+
+not_ = doc_on(
+    wrap(op.not_),
+    """not_(a) -> not a
+    """
+)
+
+or_ = curry(
+    doc_on(
+        wrap(op.or_),
+        """or_(a, b) -> a | b
+
+        Equivalent: or_by(b, a)
+        """), 2)
 
 or_by = curry(
     doc_on(
         reverse_args(op.or_),
         """or_by(a, b) -> b | a
+
+        Equivalent: or_(b, a)
         """), 2)
 
-pos = op.pos
+positive = doc_on(
+    wrap(op.pos),
+    """positive(a) -> +a
 
-pow_by = curry(
+    Also: pos(a)
+    """
+)
+
+pos = positive
+
+power = curry(
+    doc_on(
+        wrap(op.pow),
+        """power(a, b) -> a ** b
+
+        Also: pow(a, b)
+        Equivalent: to_the_power_of(b, a)
+        """
+    ), 2)
+
+pow = power
+
+to_the_power_of = curry(
     doc_on(
         reverse_args(op.pow),
-        """pow_by(a, b) -> b ** a.
+        """to_the_power_of(a, b) -> b ** a.
+
+        Also: pow_of(a, b)
+        Equivalent: power(b, a)
+        """), 2)
+
+pow_of = to_the_power_of
+
+repeat = curry(
+    doc_on(
+        wrap(op.repeat),
+        """repeat(sequence, integer) -> sequence * integer
+
+        Equivalent: repeat_by(integer, sequence)
         """), 2)
 
 repeat_by = curry(
     doc_on(
         reverse_args(op.repeat),
-        """repeat_by(a, b) -> b * a
+        """repeat_by(integer, sequence) -> sequence * integer
 
-        Return b * a, where a is an integer and b is a sequence.
+        Equivalent: repeat(sequence, integer)
         """), 2)
 
-rshift_by = curry(
+
+right_shift = curry(
+    doc_on(
+        wrap(op.rshift),
+        """right_shift(a, b) -> a >> b
+
+        Also: rshift(a, b)
+        Equivalent: right_shift_by(b, a)
+        """), 2)
+
+
+rshift = right_shift
+
+
+right_shift_by = curry(
     doc_on(
         reverse_args(op.rshift),
-        """rshift(a, b) -> b >> a
+        """right_shift(a, b) -> b >> a
+
+        Also: rshift_by(a, b)
+        Equivalent: right_shift(b, a)
         """), 2)
 
-sub_by = curry(
+
+rshift_by = right_shift_by
+
+
+subtract = curry(
+    doc_on(
+        wrap(op.sub),
+        """subtract(a, b) -> a - b
+
+        Also: sub(a, b)
+        Equivalent: subtract_by(b, a)
+        """), 2)
+
+sub = subtract
+
+subtract_by = curry(
     doc_on(
         reverse_args(op.sub),
-        """sub_by(a, b) -> b - a
+        """subtract_by(a, b) -> b - a
+
+        Also: sub_by(a, b)
+        Equivalent: subtract(b, a)
         """), 2)
 
-truediv_by = curry(
+sub_by = subtract_by
+
+
+truly_divide = curry(
     doc_on(
-        reverse_args(op.truediv),
-        """truediv_by(a, b) -> b / a
+        wrap(op.truediv),
+        """truly_divide(a, b) -> a / b
 
         Same as a / b when __future__.division is in effect.
+
+        Also: truediv(a, b)
+        Equivalent: truly_divide_by(b, a)
         """), 2)
 
-truth = op.truth
+
+truediv = truly_divide
+
+
+truly_divide_by = curry(
+    doc_on(
+        reverse_args(op.truediv),
+        """truly_divide_by(a, b) -> b / a
+
+        Same as b / a when __future__.division is in effect.
+        """), 2)
+
+truediv_by = truly_divide_by
+
+
+truly = doc_on(
+    wrap(op.truth),
+    """truly(a) -> True if a else False
+
+    Also: truth(a)
+    """
+)
+
+truth = truly
+
+
+xor = curry(
+    doc_on(
+        wrap(op.xor),
+        """xor(a, b) -> a ^ b
+
+        Also: exclusive_or(a, b)
+        Equivalent: xor_by(b, a)
+        """), 2)
+
+exclusive_or = xor
 
 xor_by = curry(
     doc_on(
         reverse_args(op.xor),
         """xor_by(a, b) -> b ^ a
+
+        Also: exclusive_or_by(a, b)
+        Equivalent: xor(b, a)
         """), 2)
+
+exclusive_or_by = xor_by
 
 
 def switch(predicate_action_pairs):
-    """Return a function which picks a function based on the result of a predicate.
+    """Return a function which picks a function based on the result of the predicate.
+
+    If no function is selected, return None.
     """
     def on_switch(*args, **kwargs):
         for predicate, action in predicate_action_pairs:
@@ -700,3 +1060,45 @@ def switch(predicate_action_pairs):
                 return action(*args, **kwargs)
 
     return on_switch
+
+
+filter = curry(
+    doc_on(
+        wrap(itertools.ifilter),
+        """filter(predicate, iterable) -> filtered_iterable
+
+        Return the stream of items for which predicate(item) is true.
+
+        Also: select(predicate, iterable)
+        """
+    ), 2
+)
+
+select = filter
+
+
+first = doc_on(
+    compose(next, iter),
+    """first(iterable) -> first_item_of_iterable
+
+    Return the first item of the iterable.
+
+    Also: head(iterable); take(iterable)
+    """
+)
+
+head = first
+take = first
+
+
+find = curry(
+    doc_on(
+        compose(first, filter),
+        """find(predicate, iterable) -> first_item_found
+
+        Return the first item for which predicate(item) is true.
+        """
+    ), 2)
+
+
+detect = find
